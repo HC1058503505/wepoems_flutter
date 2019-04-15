@@ -30,6 +30,7 @@ class _PoemDetailState extends State<PoemDetail>
   void initState() {
     // TODO: implement initState
     super.initState();
+
     _pageController = PageController();
     _tabController = TabController(length: _tabs.length, vsync: this);
     _tabController.addListener(() {
@@ -60,6 +61,7 @@ class _PoemDetailState extends State<PoemDetail>
 
       setState(() {
         _detailModel = PoemDetailModel.parseJSON(response);
+        _detailModel.author.nameStr = widget.poemRecom.author;
       });
     } catch (e) {
       print(e.toString());
@@ -82,7 +84,27 @@ class _PoemDetailState extends State<PoemDetail>
           children: <Widget>[
             Container(
               width: MediaQuery.of(context).size.width,
-              child: PoemCell(poem: widget.poemRecom),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  PoemCell(poem: widget.poemRecom),
+                  Wrap(
+                    children: widget.poemRecom.tag.split("|").map<Widget>((tagItem){
+                      return Container(
+                        margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black26,),
+                          borderRadius: BorderRadius.all(Radius.circular(10))
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
+                          child: Text(tagItem, style: TextStyle(fontSize: 12.0),),
+                        ),
+                      );
+                    }).toList(),
+                  )
+                ],
+              ),
             ),
             Container(
               alignment: Alignment.centerLeft,

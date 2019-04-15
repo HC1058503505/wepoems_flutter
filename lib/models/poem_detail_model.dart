@@ -23,15 +23,15 @@ class PoemAuthor {
       this.shiCount});
 
   PoemAuthor.parseJSON(Map<String, dynamic> author) {
-    chaodai = author["chaodai"].toString();
-    cont = author["cont"].toString();
-    creTime = author["creTime"].toString();
+    chaodai = author["chaodai"].toString().replaceAll(RegExp("null"), "");
+    cont = author["cont"].toString().replaceAll(RegExp("null"), "");
+    creTime = author["creTime"].toString().replaceAll(RegExp("null"), "");
     id = author["id"] as int;
-    idnew = author["idnew"].toString();
-    ipStr = author["ipStr"].toString();
-    nameStr = author["nameStr"].toString();
+    idnew = author["idnew"].toString().replaceAll(RegExp("null"), "");
+    ipStr = author["ipStr"].toString().replaceAll(RegExp("null"), "");
+    nameStr = author["nameStr"].toString().replaceAll(RegExp("null"), "");
     likes = author["likes"] as int;
-    pic = author["pic"].toString();
+    pic = author["pic"].toString().replaceAll(RegExp("null"), "");
     shiCount = author["shiCount"] as int;
   }
 }

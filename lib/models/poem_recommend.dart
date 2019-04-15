@@ -18,7 +18,7 @@ class PoemRecommend {
         .replaceAll(RegExp("<(\/)?p>"), "")
         .replaceAll(RegExp("<br \/>"), "\n")
         .replaceAll(RegExp("[\(|（].*[\)|）]"), "")
-        .replaceAll(RegExp("<span.*span>"), "");
+        .replaceAll(RegExp("<span.*span>"), "").trim();
     tag = poem["tag"].toString();
   }
 }

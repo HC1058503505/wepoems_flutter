@@ -23,6 +23,9 @@ class _PoemAuthorViewState extends State<PoemAuthorView> {
   }
 
   void getMoreMsg() async {
+    if(widget.author.idnew.length == 0){
+      return;
+    }
     var postData = {'token': 'gswapi', 'id': widget.author.idnew};
     var response = await DioManager.singleton.post(
         path: "api/author/author2.aspx",
@@ -48,28 +51,37 @@ class _PoemAuthorViewState extends State<PoemAuthorView> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.author.idnew.length == 0){
+      return Container(
+        child: Center(
+          child: Text(widget.author.nameStr, style: TextStyle(color: Colors.black26),),
+        ),
+      );
+    }
     String imageURL =
         "https://img.gushiwen.org" + "/authorImg/" + widget.author.pic + ".jpg";
 
-//    return poemRecomView();
     return SingleChildScrollView(
-      child: Column(
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
-            child: ClipRRect(
-              child: Image(
-                fit: BoxFit.fitHeight,
-                image: CachedNetworkImageProvider(imageURL),
-                height: 225,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(20, 0, 20, 40),
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
+              child: ClipRRect(
+                child: Image(
+                  fit: BoxFit.fitHeight,
+                  image: CachedNetworkImageProvider(imageURL),
+                  height: 225,
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(157.5)),
               ),
-              borderRadius: BorderRadius.all(Radius.circular(157.5)),
             ),
-          ),
-          Text(widget.author.cont),
-          poemRecomView(),
-//          analyzesView()
-        ],
+            Text(widget.author.cont),
+            poemRecomView(),
+            analyzesView()
+          ],
+        ),
       ),
     );
   }
@@ -81,21 +93,31 @@ class _PoemAuthorViewState extends State<PoemAuthorView> {
       );
     }
 
-    List<Widget> poemWidgets = _poemRecoms.map<Widget>((peom) {
-      print(peom.cont.split(RegExp("<br />")).first);
+    List<Widget> poemWidgets = _poemRecoms.map<Widget>((poem) {
+
       return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Row(
-            children: <Widget>[
-              Text(peom.nameStr,
-                  style: TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.bold)),
-              Text(peom.author + '/' + peom.chaodai,
-                  style: TextStyle(color: Colors.black26))
-            ],
+          Padding(
+            padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+            child: Row(
+               children: <Widget>[
+                 Expanded(
+                   child: Text(poem.nameStr,
+                       style: TextStyle(
+                           color: Colors.black, fontWeight: FontWeight.bold)),
+                 ),
+                 SizedBox(width: 20),
+                 Text(poem.author + '/' + poem.chaodai,
+                     style: TextStyle(color: Colors.black26))
+               ],
+            ),
           ),
-          Text(peom.cont.split(RegExp("<br />")).first,
-              style: TextStyle(color: Colors.black)),
+          Padding(
+            padding: EdgeInsets.only(bottom: 10),
+            child: Text(poem.cont.split(RegExp("\n")).first,
+              style: TextStyle(color: Colors.black), textAlign: TextAlign.left,),
+          ),
           Container(
             padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
             height: 2,
@@ -108,34 +130,49 @@ class _PoemAuthorViewState extends State<PoemAuthorView> {
     var raiseBtn = RaisedButton(child: Text("查看更多"), onPressed: () {});
     poemWidgets.add(raiseBtn);
 
-    return Column(
-      children: poemWidgets,
+    var titleText = Text("代表作", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20.0));
+    return Padding(
+      padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          titleText,
+          Column(
+            children: poemWidgets,
+          )
+        ],
+      ),
     );
   }
 
   Widget analyzesView() {
     if (_analyzes.length == 0) {
-      return ListView.builder(
-          itemBuilder: (contenxt, index) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: Text(
-                    _analyzes[index].nameStr,
-                    style: TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.left,
-                  ),
-                ),
-                Html(
-                  data: _analyzes[index].cont,
-                )
-              ],
-            );
-          },
-          itemCount: _analyzes.length);
+      return Container();
     }
+
+   List<Widget> analyzeWidgets = _analyzes.map<Widget>((analyze){
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: Text(
+              analyze.nameStr,
+              style: TextStyle(
+                  color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20.0),
+              textAlign: TextAlign.left,
+            ),
+          ),
+          Html(
+            data: analyze.cont,
+          )
+        ],
+      );
+    }).toList();
+
+
+    return Column(
+      children: analyzeWidgets,
+    );
   }
 }
