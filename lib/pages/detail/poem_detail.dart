@@ -5,6 +5,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:wepoems_flutter/models/poem_detail_model.dart';
 import 'package:wepoems_flutter/pages/recommand/poem_cell.dart';
+import 'package:wepoems_flutter/pages/detail/poem_anlyze_page.dart';
+import 'package:wepoems_flutter/pages/detail/poem_author.dart';
 
 class PoemDetail extends StatefulWidget {
   PoemDetail({this.poemRecom});
@@ -111,9 +113,32 @@ class _PoemDetailState extends State<PoemDetail>
                 },
                 itemCount: _tabs.length,
                 itemBuilder: (context, index) {
+                  if (_detailModel == null) {
+                    return Container();
+                  }
+                  List<PoemAnalyze> analyzes = <PoemAnalyze>[];
+                  switch (index) {
+                    case 0:
+                      analyzes = _detailModel.fanyis;
+                      return PoemAnalyzeView(analyzes: analyzes);
+                    case 1:
+                      analyzes = _detailModel.shagnxis;
+                      return PoemAnalyzeView(analyzes: analyzes);
+                    default:
+                      return PoemAuthorView(author: _detailModel.author);
+                  }
                   return Container(
                     child: Center(
-                      child: Text(_tabs[index]["title"]),
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                        child: Column(
+                          children: analyzes.map<Html>((detail) {
+                            return Html(
+                              data: detail.cont,
+                            );
+                          }).toList(),
+                        ),
+                      ),
                     ),
                   );
                 },

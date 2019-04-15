@@ -13,9 +13,12 @@ class PoemRecommend {
     nameStr = poem["nameStr"].toString();
     author = poem["author"].toString();
     chaodai = poem["chaodai"].toString();
-    cont = poem["cont"].toString().replaceAll(RegExp("<(\/)?p>"), "")
-                                  .replaceAll(RegExp("<br \/>"), "\n")
-                                  .replaceAll(RegExp("[\(|（].*[\)|）]"), "");
+    cont = poem["cont"]
+        .toString()
+        .replaceAll(RegExp("<(\/)?p>"), "")
+        .replaceAll(RegExp("<br \/>"), "\n")
+        .replaceAll(RegExp("[\(|（].*[\)|）]"), "")
+        .replaceAll(RegExp("<span.*span>"), "");
     tag = poem["tag"].toString();
   }
 }
