@@ -8,6 +8,7 @@ import 'package:wepoems_flutter/pages/recommand/poem_cell.dart';
 import 'package:wepoems_flutter/pages/detail/poem_anlyze_page.dart';
 import 'package:wepoems_flutter/pages/detail/poem_author.dart';
 import 'dart:math' as math;
+import 'package:wepoems_flutter/pages/detail/poem_tag_page.dart';
 
 class PoemDetail extends StatefulWidget {
   PoemDetail({this.poemRecom});
@@ -71,11 +72,20 @@ class _PoemDetailState extends State<PoemDetail>
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
+          leading: IconButton(icon: Icon(Icons.arrow_back_ios), onPressed: (){
+            Navigator.of(context).pop();
+          }),
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.star_border, color: Colors.white),
               onPressed: () {},
-            )
+            ),
+            IconButton(icon: Icon(Icons.share), onPressed: (){
+
+            }),
+            IconButton(icon: Icon(Icons.more_horiz), onPressed: (){
+
+            })
           ],
         ),
         body: Container(
@@ -134,33 +144,7 @@ class _PoemDetailState extends State<PoemDetail>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           PoemCell(poem: widget.poemRecom),
-          Offstage(
-            offstage: widget.poemRecom.tag.length <= 0,
-            child: Wrap(
-              children: widget.poemRecom.tag.split("|").map<Widget>((tagItem) {
-                return Container(
-                  margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
-                  decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.black26,
-                      ),
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
-                    child: Text(
-                      tagItem,
-                      style: TextStyle(
-                        fontSize: 12.0,
-                        color: Colors.black,
-                        decoration: TextDecoration.none,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          )
+          PoemTagPage(tagStr: widget.poemRecom.tag)
         ],
       ),
     );

@@ -9,7 +9,6 @@ class PoemAnalyzeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("PoemAnalyzeView");
     if (analyzes == null) {
       return Container();
     }

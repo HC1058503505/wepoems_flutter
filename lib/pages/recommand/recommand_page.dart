@@ -74,7 +74,7 @@ class _RecommandPageState extends State<RecommandPage> {
             },
             separatorBuilder: (context, index) {
               return Container(
-                height: 2,
+                height: 1,
                 color: Colors.black12,
               );
             },
