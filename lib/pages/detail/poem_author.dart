@@ -15,6 +15,7 @@ class PoemAuthorView extends StatefulWidget {
 class _PoemAuthorViewState extends State<PoemAuthorView> {
   List<PoemRecommend> _poemRecoms = <PoemRecommend>[];
   List<PoemAnalyze> _analyzes = <PoemAnalyze>[];
+
   @override
   void initState() {
     // TODO: implement initState
@@ -23,7 +24,7 @@ class _PoemAuthorViewState extends State<PoemAuthorView> {
   }
 
   void getMoreMsg() async {
-    if(widget.author.idnew.length == 0){
+    if (widget.author.idnew.length == 0) {
       return;
     }
     var postData = {'token': 'gswapi', 'id': widget.author.idnew};
@@ -51,16 +52,41 @@ class _PoemAuthorViewState extends State<PoemAuthorView> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.author.idnew.length == 0){
+    if (widget.author.idnew.length == 0) {
       return Container(
         child: Center(
-          child: Text(widget.author.nameStr, style: TextStyle(color: Colors.black26),),
+          child: Text(
+            widget.author.nameStr,
+            style: TextStyle(color: Colors.black26),
+          ),
         ),
       );
     }
     String imageURL =
         "https://img.gushiwen.org" + "/authorImg/" + widget.author.pic + ".jpg";
 
+    return Container(
+      child: Column(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
+            child: ClipRRect(
+              child: Image(
+                fit: BoxFit.fitHeight,
+                image: CachedNetworkImageProvider(imageURL),
+                height: 225,
+              ),
+              borderRadius: BorderRadius.all(Radius.circular(157.5)),
+            ),
+          ),
+          Html(
+            data: widget.author.cont,
+          ),
+          poemRecomView(),
+          analyzesView()
+        ],
+      ),
+    );
     return SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.fromLTRB(20, 0, 20, 40),
@@ -77,7 +103,9 @@ class _PoemAuthorViewState extends State<PoemAuthorView> {
                 borderRadius: BorderRadius.all(Radius.circular(157.5)),
               ),
             ),
-            Text(widget.author.cont),
+            Html(
+              data: widget.author.cont,
+            ),
             poemRecomView(),
             analyzesView()
           ],
@@ -94,29 +122,31 @@ class _PoemAuthorViewState extends State<PoemAuthorView> {
     }
 
     List<Widget> poemWidgets = _poemRecoms.map<Widget>((poem) {
-
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Padding(
             padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
             child: Row(
-               children: <Widget>[
-                 Expanded(
-                   child: Text(poem.nameStr,
-                       style: TextStyle(
-                           color: Colors.black, fontWeight: FontWeight.bold)),
-                 ),
-                 SizedBox(width: 20),
-                 Text(poem.author + '/' + poem.chaodai,
-                     style: TextStyle(color: Colors.black26))
-               ],
+              children: <Widget>[
+                Expanded(
+                  child: Text(poem.nameStr,
+                      style: TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.bold)),
+                ),
+                SizedBox(width: 20),
+                Text(poem.author + '/' + poem.chaodai,
+                    style: TextStyle(color: Colors.black26))
+              ],
             ),
           ),
           Padding(
             padding: EdgeInsets.only(bottom: 10),
-            child: Text(poem.cont.split(RegExp("\n")).first,
-              style: TextStyle(color: Colors.black), textAlign: TextAlign.left,),
+            child: Text(
+              poem.cont.split(RegExp("\n")).first,
+              style: TextStyle(color: Colors.black),
+              textAlign: TextAlign.left,
+            ),
           ),
           Container(
             padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
@@ -130,7 +160,9 @@ class _PoemAuthorViewState extends State<PoemAuthorView> {
     var raiseBtn = RaisedButton(child: Text("查看更多"), onPressed: () {});
     poemWidgets.add(raiseBtn);
 
-    var titleText = Text("代表作", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20.0));
+    var titleText = Text("代表作",
+        style: TextStyle(
+            color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20.0));
     return Padding(
       padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
       child: Column(
@@ -150,7 +182,7 @@ class _PoemAuthorViewState extends State<PoemAuthorView> {
       return Container();
     }
 
-   List<Widget> analyzeWidgets = _analyzes.map<Widget>((analyze){
+    List<Widget> analyzeWidgets = _analyzes.map<Widget>((analyze) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -159,7 +191,9 @@ class _PoemAuthorViewState extends State<PoemAuthorView> {
             child: Text(
               analyze.nameStr,
               style: TextStyle(
-                  color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20.0),
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20.0),
               textAlign: TextAlign.left,
             ),
           ),
@@ -169,7 +203,6 @@ class _PoemAuthorViewState extends State<PoemAuthorView> {
         ],
       );
     }).toList();
-
 
     return Column(
       children: analyzeWidgets,
