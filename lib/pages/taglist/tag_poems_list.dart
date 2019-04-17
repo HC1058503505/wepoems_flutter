@@ -6,7 +6,8 @@ enum TagType {
   Normal,
   Author,
   Dynasty,
-  Collections
+  Collections,
+  Category
 }
 
 class PoemsTagList extends StatefulWidget {
@@ -25,6 +26,7 @@ class _PoemsTagListState extends State<PoemsTagList> {
   Map<String, dynamic> _postData = <String, dynamic>{};
   ScrollController _scrollController;
   List<PoemRecommend> _poemList = <PoemRecommend>[];
+  bool _isError = false;
   @override
   void initState() {
     // TODO: implement initState
@@ -58,20 +60,27 @@ class _PoemsTagListState extends State<PoemsTagList> {
   }
 
   void _getMoreTagList() async {
-    Map<String, dynamic> response = await DioManager.singleton.post(path: "api/shiwen/Default.aspx", data: _postData) as Map<String, dynamic>;
+    DioManager.singleton.post(path: "api/shiwen/Default.aspx", data: _postData).then((response) {
+      List<dynamic> gushiwens = response["gushiwens"] as List<dynamic>;
+      List<PoemRecommend> poems = gushiwens.map<PoemRecommend>((gushiwen){
+        return PoemRecommend.parseJSON(gushiwen);
+      }).toList();
 
-    List<dynamic> gushiwens = response["gushiwens"] as List<dynamic>;
-    List<PoemRecommend> poems = gushiwens.map<PoemRecommend>((gushiwen){
-      return PoemRecommend.parseJSON(gushiwen);
-    }).toList();
+      if (_page == 1) {
+        _poemList.clear();
+      }
 
-    if (_page == 1) {
-      _poemList.clear();
-    }
-
-    setState(() {
-      _poemList.addAll(poems);
+      setState(() {
+        _poemList.addAll(poems);
+      });
+    })
+    .catchError((error) {
+      setState(() {
+        _isError = true;
+      });
     });
+
+
 
   }
 
@@ -81,22 +90,40 @@ class _PoemsTagListState extends State<PoemsTagList> {
   }
   @override
   Widget build(BuildContext context) {
+
+    if (_isError) {
+      _isError = false;
+      return Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text(_navTitle),
+        ),
+        body: GestureDetector(
+          onTap: () {
+            _getMoreTagList();
+          },
+          child: Container(
+            child: Center(
+              child: Text(
+                "点击重试",
+                style: TextStyle(color: Colors.black, fontSize: 20),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: Text(_navTitle),
       ),
       body: RefreshIndicator(
-          child: ListView.separated(
+          child: ListView.builder(
               controller: _scrollController,
               itemBuilder: (context, index){
                 return PoemsListCell(poem: _poemList[index], padding: EdgeInsets.fromLTRB(10, 0, 10, 0));
-              },
-              separatorBuilder: (context,index){
-                return Container(
-                  height: 1,
-                  color: Colors.black12,
-                );
               },
               itemCount: _poemList.length
           ),

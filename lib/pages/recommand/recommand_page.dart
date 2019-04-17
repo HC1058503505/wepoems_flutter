@@ -67,7 +67,7 @@ class _RecommandPageState extends State<RecommandPage> {
       _isError = false;
       return GestureDetector(
         onTap: () {
-          _onRefresh();
+          _getPoems();
         },
         child: Container(
           child: Center(

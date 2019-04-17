@@ -93,7 +93,7 @@ class PoemTagHotSearch {
 
   PoemTagHotSearch.parseJSON(Map<String, dynamic> hotsearch) {
     title = hotsearch["title"].toString();
-    type = hotsearch["category"].toString();
+    type = hotsearch["type"].toString();
     hotkeys = (hotsearch["hotkeys"] as List<dynamic>).map<String>((item) {
       return item.toString();
     }).toList();

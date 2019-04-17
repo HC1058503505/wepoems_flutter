@@ -5,7 +5,8 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:wepoems_flutter/models/poem_tags.dart';
 import 'package:wepoems_flutter/pages/find/search_controller.dart';
-
+import 'package:wepoems_flutter/pages/taglist/tag_poems_list.dart';
+import 'package:flutter/cupertino.dart';
 class FindPage extends StatefulWidget {
   @override
   _FindPageState createState() => _FindPageState();
@@ -30,11 +31,27 @@ class _FindPageState extends State<FindPage> {
 
     setState(() {
       _searchConditions = PoemSearchConditions.parseJSON(searchData);
+      print(_searchConditions.hotsearchs);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_searchConditions == null) {
+      return GestureDetector(
+        onTap: () {
+          _getSearchConditions();
+        },
+        child: Container(
+          child: Center(
+            child: Text(
+              "点击重试",
+              style: TextStyle(color: Colors.black, fontSize: 20),
+            ),
+          ),
+        ),
+      );
+    }
     return Container(
       child: Column(
         children: <Widget>[
@@ -42,25 +59,86 @@ class _FindPageState extends State<FindPage> {
           SizedBox(
             height: 20,
           ),
-          ListView.builder(
-              itemCount: _searchConditions.hotsearchs.length,
-              itemBuilder: (context, index) {
-                PoemTagHotSearch search = _searchConditions.hotsearchs[index];
-                List<String> hotKeyList = search.hotkeys;
-                if (search.type == "poet") {
-                  hotKeyList = hotKeyList.map<String>((item) {
-                    return item.split("|").first;
-                  }).toList();
-                }
-                return Column(
-                  children: <Widget>[
-                    Text(search.title),
-                    Wrap(
-                      children: hotKeyList.map<Widget>((item) {}),
-                    )
-                  ],
-                );
-              }),
+          Expanded(
+            child: ListView.builder(
+                itemCount: _searchConditions.hotsearchs.length,
+                itemBuilder: (context, index) {
+                  PoemTagHotSearch search = _searchConditions.hotsearchs[index];
+                  List<String> hotKeyList = search.hotkeys;
+                  if (search.type == "poet") {
+                    hotKeyList = hotKeyList.map<String>((item) {
+                      return item.split("|").first;
+                    }).toList();
+                  }
+                  return Padding(
+                    padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                          padding: EdgeInsets.fromLTRB(0, 15, 0, 15),
+                          child: Row(
+                            children: <Widget>[
+                              Container(
+                                margin: EdgeInsets.only(right: 5),
+                                height: 20,
+                                width: 5,
+                                color: Colors.black,
+                              ),
+                              Text(search.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),)
+                            ],
+                          ),
+                        ),
+                        Wrap(
+                          children: hotKeyList.map<Widget>((item) {
+                            return FlatButton(
+                                onPressed: (){
+                                  Navigator.of(context).push(CupertinoPageRoute(builder: (context){
+                                    String tagStr = item;
+//                                    if (index == 1) {
+//                                      int indexItem = hotKeyList.indexOf(item);
+//                                      tagStr = search.hotkeys[indexItem].split("|").last;
+//                                    }
+                                    TagType tagType = TagType.Normal;
+                                    switch (index) {
+                                      case 0:
+                                        tagType = TagType.Category;
+                                        break;
+                                      case 1:
+                                        tagType = TagType.Author;
+                                        break;
+                                      case 2:
+                                        tagType = TagType.Dynasty;
+                                        break;
+                                      case 3:
+                                        break;
+                                      case 4:
+                                        tagType = TagType.Collections;
+                                        break;
+                                      default:
+                                        break;
+                                    }
+                                    return PoemsTagList(tagStr: tagStr, tagType: tagType);
+                                  }));
+                                },
+                                child: Text(item, style: TextStyle(fontSize: 12),),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                                  side: BorderSide(
+                                    color: Colors.black26,
+                                    width: 1,
+                                    style: BorderStyle.solid
+                                  ),
+                                ),
+                            );
+                          }).toList(),
+                          spacing: 7,
+                        )
+                      ],
+                    ),
+                  );
+                }),
+          ),
         ],
       ),
     );
