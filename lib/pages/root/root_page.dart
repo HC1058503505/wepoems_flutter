@@ -23,8 +23,6 @@ class RootPage extends StatefulWidget {
 }
 
 class _RootPageState extends State<RootPage> {
-
-
   List<Map<String, String>> _tabItems = <Map<String, String>>[
     {"title": "推荐", "icon": "lib/images/recommand"},
     {"title": "发现", "icon": "lib/images/poem_search"},
@@ -33,15 +31,11 @@ class _RootPageState extends State<RootPage> {
 
   int _tabIndex = 0;
 
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -62,22 +56,22 @@ class _RootPageState extends State<RootPage> {
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: IndexedStack(
-          children: <Widget>[
-            RecommandPage(),
-            FindPage(),
-            MePage()
-          ],
+          children: <Widget>[RecommandPage(), FindPage(), MePage()],
           index: _tabIndex,
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        fixedColor: Colors.black,
+        fixedColor: Colors.blue,
         items: _tabItems.map<BottomNavigationBarItem>((item) {
           return BottomNavigationBarItem(
-              icon: Image.asset(item["icon"] + ".png"),
-              title: Text(item["title"]),
-              activeIcon: Image.asset(item["icon"] + "_selected.png"));
+            icon: Image.asset(item["icon"] + ".png"),
+            title: Text(item["title"]),
+            activeIcon: Image.asset(
+              item["icon"] + "_selected.png",
+              color: Colors.blue,
+            ),
+          );
         }).toList(),
         onTap: (index) {
           setState(() {

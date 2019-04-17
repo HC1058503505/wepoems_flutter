@@ -72,20 +72,18 @@ class _PoemDetailState extends State<PoemDetail>
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          leading: IconButton(icon: Icon(Icons.arrow_back_ios), onPressed: (){
-            Navigator.of(context).pop();
-          }),
+          leading: IconButton(
+              icon: Icon(Icons.arrow_back_ios),
+              onPressed: () {
+                Navigator.of(context).pop();
+              }),
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.star_border, color: Colors.white),
               onPressed: () {},
             ),
-            IconButton(icon: Icon(Icons.share), onPressed: (){
-
-            }),
-            IconButton(icon: Icon(Icons.more_horiz), onPressed: (){
-
-            })
+            IconButton(icon: Icon(Icons.share), onPressed: () {}),
+            IconButton(icon: Icon(Icons.more_horiz), onPressed: () {})
           ],
         ),
         body: Container(
@@ -159,7 +157,7 @@ class _PoemDetailState extends State<PoemDetail>
           TabBar(
             isScrollable: true,
             controller: _tabController,
-            indicatorColor: Colors.red,
+            indicatorColor: Colors.blue,
             tabs: _tabs.map<Tab>((tab) {
               int index = _tabs.indexOf(tab);
               bool isCurrentTab = _tabController.index == index;
@@ -167,7 +165,7 @@ class _PoemDetailState extends State<PoemDetail>
                 child: Text(
                   tab["title"],
                   style: TextStyle(
-                    color: isCurrentTab ? Colors.red : Colors.black26,
+                    color: isCurrentTab ? Colors.blue : Colors.black26,
                   ),
                 ),
               );

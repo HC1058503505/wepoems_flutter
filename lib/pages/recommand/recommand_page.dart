@@ -15,7 +15,7 @@ class _RecommandPageState extends State<RecommandPage> {
   List<PoemRecommend> _recommandList = <PoemRecommend>[];
 
   int _page = 0;
-
+  bool _isError = false;
   @override
   void initState() {
     // TODO: implement initState
@@ -34,20 +34,25 @@ class _RecommandPageState extends State<RecommandPage> {
 
   void _getPoems() async {
     var postData = {"pwd": "", "token": "gswapi", "id": "", "page": _page};
-    var response = await DioManager.singleton.post(
-        path: "api/upTimeTop11.aspx", data: postData) as Map<String, dynamic>;
+    DioManager.singleton
+        .post(path: "api/upTimeTop11.aspx", data: postData)
+        .then((response) {
+      var gushiwens = response["gushiwens"] as List<dynamic>;
+      var gushiwenList = gushiwens.map((poem) {
+        return PoemRecommend.parseJSON(poem);
+      });
 
-    var gushiwens = response["gushiwens"] as List<dynamic>;
-    var gushiwenList = gushiwens.map((poem) {
-      return PoemRecommend.parseJSON(poem);
-    });
+      if (_page == 0) {
+        _recommandList.clear();
+      }
 
-    if (_page == 0) {
-      _recommandList.clear();
-    }
-
-    setState(() {
-      _recommandList.addAll(gushiwenList);
+      setState(() {
+        _recommandList.addAll(gushiwenList);
+      });
+    }).catchError((error) {
+      setState(() {
+        _isError = true;
+      });
     });
   }
 
@@ -58,6 +63,22 @@ class _RecommandPageState extends State<RecommandPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isError) {
+      _isError = false;
+      return GestureDetector(
+        onTap: () {
+          _onRefresh();
+        },
+        child: Container(
+          child: Center(
+            child: Text(
+              "点击重试",
+              style: TextStyle(color: Colors.black, fontSize: 20),
+            ),
+          ),
+        ),
+      );
+    }
     return RefreshIndicator(
         child: ListView.separated(
             controller: _scrollController,

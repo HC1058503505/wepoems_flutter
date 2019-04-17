@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:wepoems_flutter/models/poem_detail_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:wepoems_flutter/tools/dio_manager.dart';
 import 'package:wepoems_flutter/models/poem_recommend.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:wepoems_flutter/pages/taglist/poems_list_cell.dart';
+import 'package:wepoems_flutter/pages/taglist/tag_poems_list.dart';
+
 class PoemAuthorView extends StatefulWidget {
   PoemAuthorView({this.author});
   final PoemAuthor author;
@@ -83,9 +86,9 @@ class _PoemAuthorViewState extends State<PoemAuthorView> {
                 child: Image(
                   fit: BoxFit.fitHeight,
                   image: CachedNetworkImageProvider(imageURL),
-                  height: 225,
+                  height: 180,
                 ),
-                borderRadius: BorderRadius.all(Radius.circular(157.5)),
+                borderRadius: BorderRadius.all(Radius.circular(126)),
               ),
             ),
           ),
@@ -110,8 +113,20 @@ class _PoemAuthorViewState extends State<PoemAuthorView> {
       return PoemsListCell(poem: poem, padding: EdgeInsets.all(0));
     }).toList();
 
-    var raiseBtn = RaisedButton(child: Text("查看更多"), onPressed: () {});
-    poemWidgets.add(raiseBtn);
+    var faltBtn = FlatButton(
+        child: Text(
+          "查看更多>>",
+          style: TextStyle(color: Colors.blue),
+        ),
+        onPressed: () {
+          Navigator.of(context).push(CupertinoPageRoute(builder: (context) {
+            return PoemsTagList(
+              tagType: TagType.Author,
+              tagStr: widget.author.nameStr,
+            );
+          }));
+        });
+    poemWidgets.add(faltBtn);
 
     var titleText = Text("代表作",
         style: TextStyle(
