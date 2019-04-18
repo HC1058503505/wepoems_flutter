@@ -4,9 +4,10 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:wepoems_flutter/models/poem_tags.dart';
-import 'package:wepoems_flutter/pages/find/search_controller.dart';
+import 'package:wepoems_flutter/pages/find/search_view.dart';
 import 'package:wepoems_flutter/pages/taglist/tag_poems_list.dart';
 import 'package:flutter/cupertino.dart';
+
 class FindPage extends StatefulWidget {
   @override
   _FindPageState createState() => _FindPageState();
@@ -14,7 +15,6 @@ class FindPage extends StatefulWidget {
 
 class _FindPageState extends State<FindPage> {
   PoemSearchConditions _searchConditions;
-  FocusNode _focusNode = FocusNode();
   TextEditingController _editingController = TextEditingController();
   @override
   void initState() {
@@ -31,7 +31,6 @@ class _FindPageState extends State<FindPage> {
 
     setState(() {
       _searchConditions = PoemSearchConditions.parseJSON(searchData);
-      print(_searchConditions.hotsearchs);
     });
   }
 
@@ -55,7 +54,7 @@ class _FindPageState extends State<FindPage> {
     return Container(
       child: Column(
         children: <Widget>[
-          SearchController(editingController: _editingController),
+          SearchView(),
           SizedBox(
             height: 20,
           ),
@@ -85,51 +84,60 @@ class _FindPageState extends State<FindPage> {
                                 width: 5,
                                 color: Colors.black,
                               ),
-                              Text(search.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),)
+                              Text(
+                                search.title,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 15),
+                              )
                             ],
                           ),
                         ),
                         Wrap(
                           children: hotKeyList.map<Widget>((item) {
                             return FlatButton(
-                                onPressed: (){
-                                  Navigator.of(context).push(CupertinoPageRoute(builder: (context){
-                                    String tagStr = item;
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                    CupertinoPageRoute(builder: (context) {
+                                  String tagStr = item;
 //                                    if (index == 1) {
 //                                      int indexItem = hotKeyList.indexOf(item);
 //                                      tagStr = search.hotkeys[indexItem].split("|").last;
 //                                    }
-                                    TagType tagType = TagType.Normal;
-                                    switch (index) {
-                                      case 0:
-                                        tagType = TagType.Category;
-                                        break;
-                                      case 1:
-                                        tagType = TagType.Author;
-                                        break;
-                                      case 2:
-                                        tagType = TagType.Dynasty;
-                                        break;
-                                      case 3:
-                                        break;
-                                      case 4:
-                                        tagType = TagType.Collections;
-                                        break;
-                                      default:
-                                        break;
-                                    }
-                                    return PoemsTagList(tagStr: tagStr, tagType: tagType);
-                                  }));
-                                },
-                                child: Text(item, style: TextStyle(fontSize: 12),),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                                  side: BorderSide(
+                                  TagType tagType = TagType.Normal;
+                                  switch (index) {
+                                    case 0:
+                                      tagType = TagType.Category;
+                                      break;
+                                    case 1:
+                                      tagType = TagType.Author;
+                                      break;
+                                    case 2:
+                                      tagType = TagType.Dynasty;
+                                      break;
+                                    case 3:
+                                      break;
+                                    case 4:
+                                      tagType = TagType.Collections;
+                                      break;
+                                    default:
+                                      break;
+                                  }
+                                  return PoemsTagList(
+                                      tagStr: tagStr, tagType: tagType);
+                                }));
+                              },
+                              child: Text(
+                                item,
+                                style: TextStyle(fontSize: 12),
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                                side: BorderSide(
                                     color: Colors.black26,
                                     width: 1,
-                                    style: BorderStyle.solid
-                                  ),
-                                ),
+                                    style: BorderStyle.solid),
+                              ),
                             );
                           }).toList(),
                           spacing: 7,

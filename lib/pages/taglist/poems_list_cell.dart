@@ -21,7 +21,7 @@ class PoemsListCell extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Padding(
-              padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+              padding: EdgeInsets.fromLTRB(0, 15, 0, 10),
               child: Row(
                 children: <Widget>[
                   Expanded(
@@ -36,7 +36,7 @@ class PoemsListCell extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(bottom: 10),
+              padding: EdgeInsets.only(bottom: 15),
               child: Container(
                 width: MediaQuery.of(context).size.width,
                 child: Text(
@@ -47,7 +47,6 @@ class PoemsListCell extends StatelessWidget {
               ),
             ),
             Container(
-              padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
               height: 1,
               color: Colors.black12,
             )
