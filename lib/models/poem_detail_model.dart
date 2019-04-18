@@ -1,3 +1,5 @@
+import 'package:wepoems_flutter/models/poem_recommend.dart';
+
 class PoemAuthor {
   String chaodai = "";
   String cont = "";
@@ -48,11 +50,15 @@ class PoemAnalyze {
 
 class PoemDetailModel {
   PoemAuthor author = PoemAuthor();
+  PoemRecommend gushiwen = PoemRecommend();
   List<PoemAnalyze> fanyis = <PoemAnalyze>[];
   List<PoemAnalyze> shagnxis = <PoemAnalyze>[];
 
   PoemDetailModel.parseJSON(Map<String, dynamic> poemDetail) {
     author = PoemAuthor.parseJSON(poemDetail["tb_author"]);
+
+    Map<String, dynamic> tb_gushiwen = poemDetail["tb_gushiwen"] as Map<String, dynamic>;
+    gushiwen = PoemRecommend.parseJSON(tb_gushiwen);
 
     Map<String, dynamic> tb_fanyis =
         poemDetail["tb_fanyis"] as Map<String, dynamic>;
