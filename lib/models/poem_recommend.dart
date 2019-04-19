@@ -6,8 +6,15 @@ class PoemRecommend {
   String chaodai = ""; // 朝代
   String cont = ""; // 诗词内容
   String tag = ""; // 标签
-
-  PoemRecommend({this.id, this.idnew, this.nameStr, this.author, this.chaodai, this.cont, this.tag});
+  String from = "poem"; // 来源类型
+  PoemRecommend(
+      {this.id,
+      this.idnew,
+      this.nameStr,
+      this.author,
+      this.chaodai,
+      this.cont,
+      this.tag});
 
   PoemRecommend.parseJSON(Map<String, dynamic> poem) {
     id = poem["id"] as int;
@@ -21,7 +28,8 @@ class PoemRecommend {
         .replaceAll(RegExp("<(\/)?p>"), "")
         .replaceAll(RegExp("<br \/>"), "\n")
         .replaceAll(RegExp("[\(|（].*[\)|）]"), "")
-        .replaceAll(RegExp("<span.*span>"), "").trim();
+        .replaceAll(RegExp("<span.*span>"), "")
+        .trim();
     tag = poem["tag"].toString().replaceAll(RegExp("null"), "");
   }
 }

@@ -5,6 +5,8 @@ import 'package:wepoems_flutter/models/poem_recommend.dart';
 import 'package:wepoems_flutter/pages/detail/poem_detail.dart';
 import 'package:wepoems_flutter/pages/detail/poem_author.dart';
 import 'package:wepoems_flutter/models/poem_detail_model.dart';
+import 'package:wepoems_flutter/pages/detail/poem_search_author.dart';
+
 class SearchController extends StatefulWidget {
   @override
   _SearchControllerState createState() => _SearchControllerState();
@@ -41,15 +43,18 @@ class _SearchControllerState extends State<SearchController> {
 
     setState(() {
       if (gushiwenList.length > 0) {
-        _searchResult.add({"title": "诗文", "type" : "poem", "results": gushiwenList});
+        _searchResult
+            .add({"title": "诗文", "type": "poem", "results": gushiwenList});
       }
 
       if (mingjuList.length > 0) {
-        _searchResult.add({"title": "名句", "type" : "mingju", "results": mingjuList});
+        _searchResult
+            .add({"title": "名句", "type": "mingju", "results": mingjuList});
       }
 
       if (authorList.length > 0) {
-        _searchResult.add({"title": "诗人", "type" : "author",  "results": authorList});
+        _searchResult
+            .add({"title": "诗人", "type": "author", "results": authorList});
       }
     });
   }
@@ -67,7 +72,8 @@ class _SearchControllerState extends State<SearchController> {
           Expanded(
             child: ListView.separated(
               itemBuilder: (context, index) {
-                List<PoemRecommend> resultList = _searchResult[index]["results"];
+                List<PoemRecommend> resultList =
+                    _searchResult[index]["results"];
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -80,24 +86,29 @@ class _SearchControllerState extends State<SearchController> {
                       alignment: Alignment.centerLeft,
                     ),
                     Wrap(
-                      children: resultList.map<Widget>((item){
+                      children: resultList.map<Widget>((item) {
                         return GestureDetector(
-                          onTap: (){
+                          onTap: () {
                             String type = _searchResult[index]["type"];
-                            if (type == "poem"){
+                            if (type == "poem") {
                               Navigator.of(context)
                                   .push(CupertinoPageRoute(builder: (context) {
+                                item.from = "poem";
                                 return PoemDetail(poemRecom: item);
                               }));
                             } else if (type == "mingju") {
                               Navigator.of(context)
                                   .push(CupertinoPageRoute(builder: (context) {
+                                item.from = "mingju";
                                 return PoemDetail(poemRecom: item);
                               }));
                             } else if (type == "author") {
                               Navigator.of(context)
                                   .push(CupertinoPageRoute(builder: (context) {
-                                return PoemAuthorView(author: PoemAuthor(idnew: item.idnew, nameStr: item.nameStr));
+                                return PoemSearchAuthor(
+                                    author: PoemAuthor(
+                                        idnew: item.idnew,
+                                        nameStr: item.nameStr));
                               }));
                             }
                           },
@@ -105,8 +116,11 @@ class _SearchControllerState extends State<SearchController> {
                             padding: EdgeInsets.only(left: 20),
                             height: 40,
                             decoration: BoxDecoration(
-                                border: Border(bottom: BorderSide(color: Colors.black12,width: 1, style: BorderStyle.solid))
-                            ),
+                                border: Border(
+                                    bottom: BorderSide(
+                                        color: Colors.black12,
+                                        width: 1,
+                                        style: BorderStyle.solid))),
                             child: Row(
                               children: <Widget>[
                                 Expanded(
@@ -119,7 +133,10 @@ class _SearchControllerState extends State<SearchController> {
                                   offstage: item.author.length == 0,
                                   child: Padding(
                                     padding: EdgeInsets.fromLTRB(100, 0, 20, 0),
-                                    child: Text(item.author, style: TextStyle(color: Colors.black26),),
+                                    child: Text(
+                                      item.author,
+                                      style: TextStyle(color: Colors.black26),
+                                    ),
                                   ),
                                 )
                               ],

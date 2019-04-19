@@ -18,7 +18,7 @@ class PoemAuthorView extends StatefulWidget {
 class _PoemAuthorViewState extends State<PoemAuthorView> {
   List<PoemRecommend> _poemRecoms = <PoemRecommend>[];
   List<PoemAnalyze> _analyzes = <PoemAnalyze>[];
-
+  PoemAuthor _authorInfo;
   @override
   void initState() {
     // TODO: implement initState
@@ -34,13 +34,15 @@ class _PoemAuthorViewState extends State<PoemAuthorView> {
   }
 
   void _getMoreMsg() async {
-    if (widget.author.idnew.length == 0) {
+    if (widget.author == null) {
       return;
     }
     var postData = {'token': 'gswapi', 'id': widget.author.idnew};
     var response = await DioManager.singleton.post(
         path: "api/author/author2.aspx",
         data: postData) as Map<String, dynamic>;
+
+    PoemAuthor authorTemp = PoemAuthor.parseJSON(response["tb_author"]);
 
     var tb_gushiwens = response["tb_gushiwens"] as Map<String, dynamic>;
     var gushiwens = tb_gushiwens["gushiwens"] as List<dynamic>;
@@ -55,6 +57,7 @@ class _PoemAuthorViewState extends State<PoemAuthorView> {
     }).toList();
 
     setState(() {
+      _authorInfo = authorTemp;
       _poemRecoms = gushiwensList;
       _analyzes = analyzesList;
     });
@@ -62,24 +65,20 @@ class _PoemAuthorViewState extends State<PoemAuthorView> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.author.idnew.length == 0) {
+    if (_authorInfo == null) {
       return Container(
-        child: Center(
-          child: Text(
-            widget.author.nameStr,
-            style: TextStyle(color: Colors.black26),
-          ),
-        ),
+        color: Colors.white,
       );
     }
+
     String imageURL =
-        "https://img.gushiwen.org" + "/authorImg/" + widget.author.pic + ".jpg";
+        "https://img.gushiwen.org" + "/authorImg/" + _authorInfo.pic + ".jpg";
 
     return Container(
       child: Column(
         children: <Widget>[
           Offstage(
-            offstage: widget.author.pic.length <= 0,
+            offstage: _authorInfo.pic.length <= 0,
             child: Padding(
               padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
               child: ClipRRect(
@@ -93,7 +92,7 @@ class _PoemAuthorViewState extends State<PoemAuthorView> {
             ),
           ),
           Html(
-            data: widget.author.cont,
+            data: _authorInfo.cont,
           ),
           poemRecomView(),
           analyzesView()

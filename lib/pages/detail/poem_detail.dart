@@ -55,11 +55,15 @@ class _PoemDetailState extends State<PoemDetail>
   void _getPoemDetail() async {
     var postData = {"token": "gswapi", "id": widget.poemRecom.idnew};
     try {
-      var response = await DioManager.singleton
-          .post(path: "api/shiwen/shiwenv.aspx", data: postData);
+      String path = widget.poemRecom.from == "poem" ||
+              widget.poemRecom.from == "recommend"
+          ? "api/shiwen/shiwenv.aspx"
+          : "api/mingju/juv2.aspx";
+      var response =
+          await DioManager.singleton.post(path: path, data: postData);
       setState(() {
         _detailModel = PoemDetailModel.parseJSON(response);
-        _detailModel.author.nameStr = widget.poemRecom.author;
+//        _detailModel.author.nameStr = widget.poemRecom.author;
       });
     } catch (e) {
       print(e.toString());
@@ -134,21 +138,29 @@ class _PoemDetailState extends State<PoemDetail>
   }
 
   Container poemHeader() {
-
-    if (widget.poemRecom.cont.length == 0 && _detailModel != null && _detailModel.gushiwen.cont.length > 0) {
-      widget.poemRecom.cont = _detailModel.gushiwen.cont;
-      widget.poemRecom.tag = _detailModel.gushiwen.tag;
-      widget.poemRecom.chaodai = _detailModel.gushiwen.chaodai;
+//    if (widget.poemRecom.cont.length == 0 &&
+//        _detailModel != null &&
+//        _detailModel.gushiwen.cont.length > 0) {
+//      widget.poemRecom.cont = _detailModel.gushiwen.cont;
+//      widget.poemRecom.tag = _detailModel.gushiwen.tag;
+//      widget.poemRecom.chaodai = _detailModel.gushiwen.chaodai;
+//    }
+    if (_detailModel == null && widget.poemRecom.from != "recommend") {
+      return Container();
     }
 
+    PoemRecommend source =
+        widget.poemRecom.from == "poem" || widget.poemRecom.from == "mingju"
+            ? _detailModel.gushiwen
+            : widget.poemRecom;
     return Container(
       color: Colors.white,
       width: MediaQuery.of(context).size.width,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          PoemCell(poem: widget.poemRecom),
-          PoemTagPage(tagStr: widget.poemRecom.tag)
+          PoemCell(poem: source),
+          PoemTagPage(tagStr: source.tag)
         ],
       ),
     );
