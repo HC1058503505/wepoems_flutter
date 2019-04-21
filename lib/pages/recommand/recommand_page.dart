@@ -89,6 +89,7 @@ class _RecommandPageState extends State<RecommandPage> {
                   Navigator.of(context)
                       .push(CupertinoPageRoute(builder: (context) {
                     _recommandList[index].from = "recommend";
+                    _recommandList[index].isCollection = false;
                     return PoemDetail(poemRecom: _recommandList[index]);
                   }));
                 },

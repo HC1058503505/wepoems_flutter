@@ -19,22 +19,24 @@ class PoemAnalyzeView extends StatelessWidget {
       );
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.only(top: 0),
-          child: Text(
-            analyzes[index].nameStr,
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15),
-            textAlign: TextAlign.left,
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(top: 0),
+            child: Text(
+              analyzes[index].nameStr,
+              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15),
+              textAlign: TextAlign.left,
+            ),
           ),
-        ),
-        Html(
-          data: analyzes[index].cont,
-          defaultTextStyle: TextStyle(fontSize: 15),
-        )
-      ],
+          Html(
+            data: analyzes[index].cont,
+            defaultTextStyle: TextStyle(fontSize: 15),
+          )
+        ],
+      ),
     );
   }
 

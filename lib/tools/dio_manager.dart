@@ -9,7 +9,7 @@ class DioManager {
     BaseOptions options = BaseOptions(
       method: "get",
       baseUrl: "https://app.gushiwen.org/",
-      connectTimeout: 10000,
+      connectTimeout: 5000,
       receiveTimeout: 3000,
       contentType: ContentType('application', 'x-www-form-urlencoded',charset: 'utf-8')
     );

@@ -48,7 +48,6 @@ class _PoemDetailState extends State<PoemDetail>
   }
 
   void selectedCollection() async {
-
     if (widget.poemRecom.from == "collection") {
       _getPoemDetail();
       return;
@@ -69,6 +68,8 @@ class _PoemDetailState extends State<PoemDetail>
             widget.poemRecom.cont = poem.cont;
             widget.poemRecom.tag = poem.tag;
             widget.poemRecom.from = "recommend";
+          } else {
+            widget.poemRecom.isCollection = false;
           }
         })
         .catchError((error) {})
@@ -83,34 +84,46 @@ class _PoemDetailState extends State<PoemDetail>
     super.dispose();
     _tabController.dispose();
     DioManager.singleton.cancle();
+    Fluttertoast.cancel();
   }
 
   void _getPoemDetail() async {
     var postData = {"token": "gswapi", "id": widget.poemRecom.idnew};
-    try {
-//      String path = widget.poemRecom.from == "poem" ||
-//              widget.poemRecom.from == "recommend" || widget.poemRecom.from == "collection"
-//          ? "api/shiwen/shiwenv.aspx"
-//          : "api/mingju/juv2.aspx";
-      String path = widget.poemRecom.from == "mingju" ? "api/mingju/juv2.aspx" : "api/shiwen/shiwenv.aspx";
-      var response =
-          await DioManager.singleton.post(path: path, data: postData);
+    String path = widget.poemRecom.from == "mingju"
+        ? "api/mingju/juv2.aspx"
+        : "api/shiwen/shiwenv.aspx";
+    DioManager.singleton.post(path: path, data: postData).then((response) {
       setState(() {
         _detailModel = PoemDetailModel.parseJSON(response);
-//        _detailModel.author.nameStr = widget.poemRecom.author;
       });
-    } catch (e) {
-      print(e.toString());
-    }
+    }).catchError((error) {
+      DioError dioError = error as DioError;
+      if (dioError.type == DioErrorType.CONNECT_TIMEOUT) {
+        Fluttertoast.showToast(
+            msg: "网络连接超时，请检查网络",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_detailModel == null){
-      return Container(
-        color: Colors.white,
-      );
-    }
+//    if (_detailModel == null){
+//      return MaterialApp(
+//        home: Scaffold(
+//          appBar: AppBar(
+//            leading: IconButton(
+//                icon: Icon(Icons.arrow_back_ios),
+//                onPressed: () {
+//                  Navigator.of(context).pop();
+//                }),
+//            actions: <Widget>[
+//            ],
+//          ),
+//        ),
+//      );
+//    }
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -121,11 +134,20 @@ class _PoemDetailState extends State<PoemDetail>
               }),
           actions: <Widget>[
             IconButton(
-              icon: Icon(widget.poemRecom.isCollection ? Icons.star : Icons.star_border, color: Colors.white),
+              icon: Icon(
+                  widget.poemRecom.isCollection
+                      ? Icons.star
+                      : Icons.star_border,
+                  color: Colors.white),
               onPressed: () {
                 Fluttertoast.cancel();
 
-                if (_collectionEnable == false){
+                if (_detailModel == null ||
+                    widget.poemRecom.idnew.length == 0) {
+                  return;
+                }
+
+                if (_collectionEnable == false) {
                   Fluttertoast.showToast(
                       msg: "您的操作太频繁了，稍等！",
                       toastLength: Toast.LENGTH_SHORT,
@@ -133,19 +155,18 @@ class _PoemDetailState extends State<PoemDetail>
                   return;
                 }
 
-
                 PoemRecommendProvider provider =
                     PoemRecommendProvider.singleton;
                 if (!widget.poemRecom.isCollection) {
                   _collectionEnable = false;
-                  widget.poemRecom.isCollection = !widget.poemRecom.isCollection;
+                  widget.poemRecom.isCollection =
+                      !widget.poemRecom.isCollection;
                   provider.insert(widget.poemRecom).then((dynamic) {
                     Fluttertoast.showToast(
                         msg: "收藏成功",
                         toastLength: Toast.LENGTH_SHORT,
                         gravity: ToastGravity.CENTER);
-                    setState(() {
-                    });
+                    setState(() {});
                   }).catchError((error) {
                     Fluttertoast.showToast(
                         msg: "收藏失败",
@@ -156,14 +177,14 @@ class _PoemDetailState extends State<PoemDetail>
                   });
                 } else {
                   _collectionEnable = false;
-                  widget.poemRecom.isCollection = !widget.poemRecom.isCollection;
+                  widget.poemRecom.isCollection =
+                      !widget.poemRecom.isCollection;
                   provider.delete(widget.poemRecom.idnew).then((dynamic) {
                     Fluttertoast.showToast(
                         msg: "取消收藏成功",
                         toastLength: Toast.LENGTH_SHORT,
                         gravity: ToastGravity.CENTER);
-                    setState(() {
-                    });
+                    setState(() {});
                   }).catchError((error) {
                     Fluttertoast.showToast(
                         msg: "取消收藏失败",
@@ -179,73 +200,37 @@ class _PoemDetailState extends State<PoemDetail>
             IconButton(icon: Icon(Icons.more_horiz), onPressed: () {})
           ],
         ),
-        body: Container(
-          color: Colors.white,
-          child: CustomScrollView(
-            slivers: <Widget>[
-              SliverToBoxAdapter(
-                child: poemHeader(),
-              ),
-              SliverPersistentHeader(
-                pinned: true,
-                floating: true,
-                delegate: _SliverAppBarDelegate(
-                  minHeight: 55,
-                  maxHeight: 55,
-                  child: poemAnalyzeTabBar(),
+        body: Offstage(
+          offstage: _detailModel == null,
+          child: Container(
+            color: Colors.white,
+            child: CustomScrollView(
+              slivers: <Widget>[
+                SliverToBoxAdapter(
+                  child: poemHeader(),
                 ),
-              ),
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    return Padding(
-                      padding: EdgeInsets.all(20),
-                      child: poemAnalyzePageView(index),
-                    );
-                  },
-                  childCount: analyzesCount(),
+                SliverPersistentHeader(
+                  pinned: true,
+                  floating: true,
+                  delegate: _SliverAppBarDelegate(
+                    minHeight: 55,
+                    maxHeight: 55,
+                    child: poemAnalyzeTabBar(),
+                  ),
                 ),
-              ),
-//              SliverFillRemaining(
-//                child: PageView(
-//                  controller: _pageController,
-//                  onPageChanged: (index){
-//                    _tabController.index = index;
-//                  },
-//                  children: <Widget>[
-//                    Container(
-//                      child: ListView.builder(
-//                        padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.of(context).padding.bottom),
-//                        itemBuilder: (context, index) {
-//                          return PoemAnalyzeView(
-//                              analyzes: _detailModel.fanyis, index: index);
-//                        },
-//                        itemCount: _detailModel == null ? 0 : _detailModel.fanyis.length,
-//                      ),
-//                    ),
-//                    Container(
-//                      child: ListView.builder(
-//                        padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.of(context).padding.bottom),
-//                        itemBuilder: (context, index) {
-//                          return PoemAnalyzeView(
-//                              analyzes: _detailModel.shagnxis, index: index);
-//                        },
-//                        itemCount: _detailModel == null ? 0 : _detailModel.shagnxis.length,
-//                      ),
-//                    ),
-//                    Container(
-//                      child: ListView.builder(
-//                        padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.of(context).padding.bottom),
-//                        itemBuilder: (context, index) {
-//                          return PoemAuthorView(author: _detailModel.author);
-//                        },
-//                        itemCount: 1,
-//                      ),
-//                    )
-//                  ],
-//                ),
-//              )
-            ],
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      return Padding(
+                        padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
+                        child: poemAnalyzePageView(index),
+                      );
+                    },
+                    childCount: analyzesCount(),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

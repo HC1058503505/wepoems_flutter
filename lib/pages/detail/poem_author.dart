@@ -75,6 +75,7 @@ class _PoemAuthorViewState extends State<PoemAuthorView>  with AutomaticKeepAliv
         "https://img.gushiwen.org" + "/authorImg/" + _authorInfo.pic + ".jpg";
 
     return Container(
+      padding: EdgeInsets.only(bottom: 20),
       child: Column(
         children: <Widget>[
           Offstage(

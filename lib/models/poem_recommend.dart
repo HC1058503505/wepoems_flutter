@@ -112,7 +112,7 @@ create table if not exists $tableCollection(
 
   Future<void> insert(PoemRecommend poemRecom) async {
     poemRecom.from = "collection";
-    await db.insert(tableCollection, poemRecom.toMap());
+    return await db.insert(tableCollection, poemRecom.toMap());
   }
 
   Future<PoemRecommend> getPoemRecom(String id) async {
@@ -149,8 +149,12 @@ create table if not exists $tableCollection(
     return await db.delete(tableCollection, where: '$columnIdnew = ?', whereArgs: [id]);
   }
 
+  Future deleteAll() async {
+    return await db.delete(tableCollection);
+  }
+
   Future update(PoemRecommend poemRecom) async {
-    await db.update(tableCollection, poemRecom.toMap(),
+    return await db.update(tableCollection, poemRecom.toMap(),
         where: '$columnIdnew = ?', whereArgs: [poemRecom.idnew]);
   }
 
