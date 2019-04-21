@@ -39,7 +39,7 @@ class PoemTagAuthorItem {
   PoemTagAuthorItem({this.poet_name, this.poetry_count, this.poet_id});
 
   PoemTagAuthorItem.parseJSON(Map<String, dynamic> author) {
-    poet_name = author["poem_name"].toString();
+    poet_name = author["poet_name"].toString();
     poetry_count = author["poetry_count"].toString();
     poet_id = author["poet_id"].toString();
   }
@@ -65,7 +65,7 @@ class PoemTagSection {
     section_title = section["section_title"];
 
     items = (section["items"] as List<dynamic>).map<String>((item) {
-      item.toString();
+      return item.toString();
     }).toList();
   }
 }

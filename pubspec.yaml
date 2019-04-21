@@ -27,6 +27,9 @@ dependencies:
   flutter_html: ^0.9.6
   cached_network_image: ^0.7.0
   path_provider: ^0.5.0+1
+  azlistview: ^0.1.1
+  sqflite: ^1.1.5
+  fluttertoast: ^3.0.4
 dev_dependencies:
   flutter_test:
     sdk: flutter

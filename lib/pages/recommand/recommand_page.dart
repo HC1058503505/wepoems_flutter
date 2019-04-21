@@ -101,6 +101,7 @@ class _RecommandPageState extends State<RecommandPage> {
               );
             },
             itemCount: _recommandList.length),
-        onRefresh: _onRefresh);
+        onRefresh: _onRefresh,
+    );
   }
 }

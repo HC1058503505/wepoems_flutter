@@ -15,7 +15,7 @@ class PoemAuthorView extends StatefulWidget {
   _PoemAuthorViewState createState() => _PoemAuthorViewState();
 }
 
-class _PoemAuthorViewState extends State<PoemAuthorView> {
+class _PoemAuthorViewState extends State<PoemAuthorView>  with AutomaticKeepAliveClientMixin{
   List<PoemRecommend> _poemRecoms = <PoemRecommend>[];
   List<PoemAnalyze> _analyzes = <PoemAnalyze>[];
   PoemAuthor _authorInfo;
@@ -34,7 +34,7 @@ class _PoemAuthorViewState extends State<PoemAuthorView> {
   }
 
   void _getMoreMsg() async {
-    if (widget.author == null) {
+    if (widget.author == null || widget.author.idnew.length == 0) {
       return;
     }
     var postData = {'token': 'gswapi', 'id': widget.author.idnew};
@@ -65,7 +65,7 @@ class _PoemAuthorViewState extends State<PoemAuthorView> {
 
   @override
   Widget build(BuildContext context) {
-    if (_authorInfo == null) {
+    if (_authorInfo == null || widget.author == null || widget.author.idnew.length == 0) {
       return Container(
         color: Colors.white,
       );
@@ -175,4 +175,8 @@ class _PoemAuthorViewState extends State<PoemAuthorView> {
       children: analyzeWidgets,
     );
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }

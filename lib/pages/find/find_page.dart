@@ -7,7 +7,7 @@ import 'package:wepoems_flutter/models/poem_tags.dart';
 import 'package:wepoems_flutter/pages/find/search_view.dart';
 import 'package:wepoems_flutter/pages/taglist/tag_poems_list.dart';
 import 'package:flutter/cupertino.dart';
-
+import 'package:wepoems_flutter/pages/taglist/tag_category.dart';
 class FindPage extends StatefulWidget {
   @override
   _FindPageState createState() => _FindPageState();
@@ -107,7 +107,7 @@ class _FindPageState extends State<FindPage> {
                                   switch (index) {
                                     case 0:
                                       tagType = TagType.Category;
-                                      break;
+                                      return TagCategoryView(searchConditions: _searchConditions, index: hotKeyList.indexOf(item),);
                                     case 1:
                                       tagType = TagType.Author;
                                       break;
@@ -141,6 +141,7 @@ class _FindPageState extends State<FindPage> {
                             );
                           }).toList(),
                           spacing: 7,
+                          runSpacing: 7,
                         )
                       ],
                     ),

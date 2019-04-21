@@ -21,6 +21,7 @@ class _PoemsTagListState extends State<PoemsTagList> {
   ScrollController _scrollController;
   List<PoemRecommend> _poemList = <PoemRecommend>[];
   bool _isError = false;
+  int _sumPage = 1;
   @override
   void initState() {
     // TODO: implement initState
@@ -52,12 +53,16 @@ class _PoemsTagListState extends State<PoemsTagList> {
   }
 
   void _getMoreTagList() async {
+    if (_page > _sumPage) {
+      return;
+    }
     DioManager.singleton
         .post(path: "api/shiwen/Default.aspx", data: _postData)
         .then((response) {
-      List<dynamic> gushiwens = response["gushiwens"] as List<dynamic>;
-      List<PoemRecommend> poems = gushiwens.map<PoemRecommend>((gushiwen) {
-        return PoemRecommend.parseJSON(gushiwen);
+          _sumPage = response["sumPage"] as int;
+          List<dynamic> gushiwens = response["gushiwens"] as List<dynamic>;
+          List<PoemRecommend> poems = gushiwens.map<PoemRecommend>((gushiwen) {
+          return PoemRecommend.parseJSON(gushiwen);
       }).toList();
 
       if (_page == 1) {
@@ -117,8 +122,10 @@ class _PoemsTagListState extends State<PoemsTagList> {
                     poem: _poemList[index],
                     padding: EdgeInsets.fromLTRB(10, 0, 10, 0));
               },
-              itemCount: _poemList.length),
-          onRefresh: _refresh),
+              itemCount: _poemList.length
+          ),
+          onRefresh: _refresh
+      ),
     );
   }
 }

@@ -3,7 +3,7 @@ import 'package:wepoems_flutter/pages/recommand/recommand_page.dart';
 import 'package:wepoems_flutter/pages/me/me_page.dart';
 import 'package:wepoems_flutter/pages/find/find_page.dart';
 import 'package:flutter/cupertino.dart';
-
+import 'package:wepoems_flutter/models/poem_recommend.dart';
 class RootPage extends StatefulWidget {
   RootPage({Key key, this.title}) : super(key: key);
 
@@ -36,6 +36,7 @@ class _RootPageState extends State<RootPage> {
     // TODO: implement initState
     super.initState();
   }
+
 
   @override
   Widget build(BuildContext context) {

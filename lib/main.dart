@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:wepoems_flutter/pages/root/root_page.dart';
-
+import 'package:wepoems_flutter/models/poem_recommend.dart';
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    // 建表
+    createCollectionTable();
+
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -24,6 +28,11 @@ class MyApp extends StatelessWidget {
       ),
       home: RootPage(title: '古诗文斋'),
     );
+  }
+
+  void createCollectionTable() async {
+    PoemRecommendProvider provider = PoemRecommendProvider.singleton;
+    await provider.open(DatabasePath);
   }
 }
 

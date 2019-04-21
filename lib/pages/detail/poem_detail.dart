@@ -9,6 +9,7 @@ import 'package:wepoems_flutter/pages/detail/poem_anlyze_page.dart';
 import 'package:wepoems_flutter/pages/detail/poem_author.dart';
 import 'dart:math' as math;
 import 'package:wepoems_flutter/pages/detail/poem_tag_page.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class PoemDetail extends StatefulWidget {
   PoemDetail({this.poemRecom});
@@ -27,9 +28,11 @@ class _PoemDetailState extends State<PoemDetail>
     {"title": "作者"}
   ];
   TabController _tabController;
+//  PageController _pageController = PageController();
   PoemAnalyzeView _fanyisAnalyzeView;
   PoemAnalyzeView _shangxisAnalyzeView;
   PoemAuthorView _authorView;
+  bool _collectionEnable = true;
   @override
   void initState() {
     // TODO: implement initState
@@ -41,7 +44,37 @@ class _PoemDetailState extends State<PoemDetail>
       }
     });
 
-    _getPoemDetail();
+    selectedCollection();
+  }
+
+  void selectedCollection() async {
+
+    if (widget.poemRecom.from == "collection") {
+      _getPoemDetail();
+      return;
+    }
+
+    PoemRecommendProvider provider = PoemRecommendProvider.singleton;
+    if (!provider.db.isOpen) {
+      await provider.open(DatabasePath);
+    }
+    provider
+        .getPoemRecom(widget.poemRecom.idnew)
+        .then((poem) {
+          if (poem != null) {
+            widget.poemRecom.isCollection = poem.isCollection;
+            widget.poemRecom.nameStr = poem.nameStr;
+            widget.poemRecom.author = poem.author;
+            widget.poemRecom.chaodai = poem.chaodai;
+            widget.poemRecom.cont = poem.cont;
+            widget.poemRecom.tag = poem.tag;
+            widget.poemRecom.from = "recommend";
+          }
+        })
+        .catchError((error) {})
+        .whenComplete(() {
+          _getPoemDetail();
+        });
   }
 
   @override
@@ -55,10 +88,11 @@ class _PoemDetailState extends State<PoemDetail>
   void _getPoemDetail() async {
     var postData = {"token": "gswapi", "id": widget.poemRecom.idnew};
     try {
-      String path = widget.poemRecom.from == "poem" ||
-              widget.poemRecom.from == "recommend"
-          ? "api/shiwen/shiwenv.aspx"
-          : "api/mingju/juv2.aspx";
+//      String path = widget.poemRecom.from == "poem" ||
+//              widget.poemRecom.from == "recommend" || widget.poemRecom.from == "collection"
+//          ? "api/shiwen/shiwenv.aspx"
+//          : "api/mingju/juv2.aspx";
+      String path = widget.poemRecom.from == "mingju" ? "api/mingju/juv2.aspx" : "api/shiwen/shiwenv.aspx";
       var response =
           await DioManager.singleton.post(path: path, data: postData);
       setState(() {
@@ -72,6 +106,11 @@ class _PoemDetailState extends State<PoemDetail>
 
   @override
   Widget build(BuildContext context) {
+    if (_detailModel == null){
+      return Container(
+        color: Colors.white,
+      );
+    }
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -82,8 +121,59 @@ class _PoemDetailState extends State<PoemDetail>
               }),
           actions: <Widget>[
             IconButton(
-              icon: Icon(Icons.star_border, color: Colors.white),
-              onPressed: () {},
+              icon: Icon(widget.poemRecom.isCollection ? Icons.star : Icons.star_border, color: Colors.white),
+              onPressed: () {
+                Fluttertoast.cancel();
+
+                if (_collectionEnable == false){
+                  Fluttertoast.showToast(
+                      msg: "您的操作太频繁了，稍等！",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.CENTER);
+                  return;
+                }
+
+
+                PoemRecommendProvider provider =
+                    PoemRecommendProvider.singleton;
+                if (!widget.poemRecom.isCollection) {
+                  _collectionEnable = false;
+                  widget.poemRecom.isCollection = !widget.poemRecom.isCollection;
+                  provider.insert(widget.poemRecom).then((dynamic) {
+                    Fluttertoast.showToast(
+                        msg: "收藏成功",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.CENTER);
+                    setState(() {
+                    });
+                  }).catchError((error) {
+                    Fluttertoast.showToast(
+                        msg: "收藏失败",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.CENTER);
+                  }).whenComplete(() {
+                    _collectionEnable = true;
+                  });
+                } else {
+                  _collectionEnable = false;
+                  widget.poemRecom.isCollection = !widget.poemRecom.isCollection;
+                  provider.delete(widget.poemRecom.idnew).then((dynamic) {
+                    Fluttertoast.showToast(
+                        msg: "取消收藏成功",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.CENTER);
+                    setState(() {
+                    });
+                  }).catchError((error) {
+                    Fluttertoast.showToast(
+                        msg: "取消收藏失败",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.CENTER);
+                  }).whenComplete(() {
+                    _collectionEnable = true;
+                  });
+                }
+              },
             ),
             IconButton(icon: Icon(Icons.share), onPressed: () {}),
             IconButton(icon: Icon(Icons.more_horiz), onPressed: () {})
@@ -115,7 +205,46 @@ class _PoemDetailState extends State<PoemDetail>
                   },
                   childCount: analyzesCount(),
                 ),
-              )
+              ),
+//              SliverFillRemaining(
+//                child: PageView(
+//                  controller: _pageController,
+//                  onPageChanged: (index){
+//                    _tabController.index = index;
+//                  },
+//                  children: <Widget>[
+//                    Container(
+//                      child: ListView.builder(
+//                        padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.of(context).padding.bottom),
+//                        itemBuilder: (context, index) {
+//                          return PoemAnalyzeView(
+//                              analyzes: _detailModel.fanyis, index: index);
+//                        },
+//                        itemCount: _detailModel == null ? 0 : _detailModel.fanyis.length,
+//                      ),
+//                    ),
+//                    Container(
+//                      child: ListView.builder(
+//                        padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.of(context).padding.bottom),
+//                        itemBuilder: (context, index) {
+//                          return PoemAnalyzeView(
+//                              analyzes: _detailModel.shagnxis, index: index);
+//                        },
+//                        itemCount: _detailModel == null ? 0 : _detailModel.shagnxis.length,
+//                      ),
+//                    ),
+//                    Container(
+//                      child: ListView.builder(
+//                        padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.of(context).padding.bottom),
+//                        itemBuilder: (context, index) {
+//                          return PoemAuthorView(author: _detailModel.author);
+//                        },
+//                        itemCount: 1,
+//                      ),
+//                    )
+//                  ],
+//                ),
+//              )
             ],
           ),
         ),
@@ -124,27 +253,17 @@ class _PoemDetailState extends State<PoemDetail>
   }
 
   int analyzesCount() {
-    if (_detailModel == null) {
-      return 0;
-    }
     switch (_tabController.index) {
       case 0:
-        return _detailModel.fanyis.length;
+        return _detailModel == null ? 0 : _detailModel.fanyis.length;
       case 1:
-        return _detailModel.shagnxis.length;
+        return _detailModel == null ? 0 : _detailModel.shagnxis.length;
       case 2:
         return 1;
     }
   }
 
   Container poemHeader() {
-//    if (widget.poemRecom.cont.length == 0 &&
-//        _detailModel != null &&
-//        _detailModel.gushiwen.cont.length > 0) {
-//      widget.poemRecom.cont = _detailModel.gushiwen.cont;
-//      widget.poemRecom.tag = _detailModel.gushiwen.tag;
-//      widget.poemRecom.chaodai = _detailModel.gushiwen.chaodai;
-//    }
     if (_detailModel == null && widget.poemRecom.from != "recommend") {
       return Container();
     }
@@ -176,16 +295,13 @@ class _PoemDetailState extends State<PoemDetail>
             isScrollable: true,
             controller: _tabController,
             indicatorColor: Colors.blue,
+            labelColor: Colors.blue,
+            unselectedLabelColor: Colors.black45,
             tabs: _tabs.map<Tab>((tab) {
               int index = _tabs.indexOf(tab);
               bool isCurrentTab = _tabController.index == index;
               return Tab(
-                child: Text(
-                  tab["title"],
-                  style: TextStyle(
-                    color: isCurrentTab ? Colors.blue : Colors.black26,
-                  ),
-                ),
+                child: Text(tab["title"]),
               );
             }).toList(),
           ),

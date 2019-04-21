@@ -8,6 +8,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.8"
+  azlistview:
+    dependency: "direct main"
+    description:
+      name: azlistview
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.1.1"
   boolean_selector:
     dependency: transitive
     description:
@@ -102,6 +109,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  fluttertoast:
+    dependency: "direct main"
+    description:
+      name: fluttertoast
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.0.4"
   html:
     dependency: transitive
     description:
@@ -178,7 +192,7 @@ packages:
     source: hosted
     version: "1.5.4"
   sqflite:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: sqflite
       url: "https://pub.flutter-io.cn"
