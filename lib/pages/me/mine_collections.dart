@@ -65,15 +65,15 @@ class _MineCollectionsState extends State<MineCollections> {
                   }).whenComplete(() {});
                 }),
           ),
-          Offstage(
-            offstage: _collections != null && _collections.length > 0,
-            child: IconButton(
-                icon: Icon(Icons.add, color: Colors.white,),
-                onPressed: (){
-
-                }
-            ),
-          )
+//          Offstage(
+//            offstage: _collections != null && _collections.length > 0,
+//            child: IconButton(
+//                icon: Icon(Icons.add, color: Colors.white,),
+//                onPressed: (){
+//
+//                }
+//            ),
+//          )
         ],
       ),
       body: collectionsListView(),
