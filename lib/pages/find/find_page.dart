@@ -80,14 +80,14 @@ class _FindPageState extends State<FindPage> {
                             children: <Widget>[
                               Container(
                                 margin: EdgeInsets.only(right: 5),
-                                height: 20,
+                                height: 18,
                                 width: 5,
-                                color: Colors.black,
+                                color: Theme.of(context).primaryColor,
                               ),
                               Text(
                                 search.title,
                                 style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 15),
+                                    fontWeight: FontWeight.bold, fontSize: 15, color: Theme.of(context).primaryColor),
                               )
                             ],
                           ),

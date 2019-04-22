@@ -16,6 +16,7 @@ class _MineSettingsState extends State<MineSettings> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        iconTheme: IconThemeData(color: Theme.of(context).indicatorColor),
         centerTitle: true,
         title: Text("设置"),
       ),
@@ -37,7 +38,7 @@ class _MineSettingsState extends State<MineSettings> {
                           : Colors.black38),
                   Padding(
                     padding: EdgeInsets.only(left: 10),
-                    child: Text("主题"),
+                    child: Text("主题", style: TextStyle(color: _isExpansionChanged ? Theme.of(context).primaryColor : Colors.black38, fontWeight: FontWeight.bold),),
                   )
                 ],
               ),
