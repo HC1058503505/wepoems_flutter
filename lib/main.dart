@@ -14,17 +14,26 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  Color _themeColor = themeColorMap[
-      SpUtil.getString(Constant.KEY_THEME_COLOR, defValue: "blue")];
+  Color _themeColor;
+
   @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
-    bus.add(Constant.KEY_THEME_CHANGE, (dynamic) {
+    SpUtil.getInstance().then((value) {
       setState(() {
         _themeColor = themeColorMap[
             SpUtil.getString(Constant.KEY_THEME_COLOR, defValue: "blue")];
-        print(_themeColor);
+      });
+    });
+
+    // TODO: implement initState
+    super.initState();
+
+    bus.add(Constant.KEY_THEME_CHANGE, (dynamic) {
+      SpUtil.getInstance().then((value) {
+        setState(() {
+          _themeColor = themeColorMap[
+              SpUtil.getString(Constant.KEY_THEME_COLOR, defValue: "blue")];
+        });
       });
     });
   }
