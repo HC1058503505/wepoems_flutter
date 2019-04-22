@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:wepoems_flutter/tools/dio_manager.dart';
 import 'package:wepoems_flutter/models/poem_recommend.dart';
 import 'package:wepoems_flutter/pages/detail/poem_detail.dart';
-import 'package:wepoems_flutter/pages/detail/poem_author.dart';
 import 'package:wepoems_flutter/models/poem_detail_model.dart';
 import 'package:wepoems_flutter/pages/detail/poem_search_author.dart';
 
@@ -171,6 +170,7 @@ class _SearchControllerState extends State<SearchController> {
           borderRadius: BorderRadius.all(Radius.circular(10))),
       margin: EdgeInsets.all(20),
       child: TextField(
+        cursorColor: Theme.of(context).primaryColor,
         controller: _editingController,
         decoration: InputDecoration(
           border: InputBorder.none,

@@ -4,6 +4,7 @@ import 'package:wepoems_flutter/pages/me/me_page.dart';
 import 'package:wepoems_flutter/pages/find/find_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:wepoems_flutter/models/poem_recommend.dart';
+
 class RootPage extends StatefulWidget {
   RootPage({Key key, this.title}) : super(key: key);
 
@@ -37,7 +38,6 @@ class _RootPageState extends State<RootPage> {
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -63,14 +63,14 @@ class _RootPageState extends State<RootPage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        fixedColor: Colors.blue,
+        fixedColor: Theme.of(context).primaryColor,
         items: _tabItems.map<BottomNavigationBarItem>((item) {
           return BottomNavigationBarItem(
             icon: Image.asset(item["icon"] + ".png"),
             title: Text(item["title"]),
             activeIcon: Image.asset(
               item["icon"] + "_selected.png",
-              color: Colors.blue,
+              color: Theme.of(context).primaryColor,
             ),
           );
         }).toList(),

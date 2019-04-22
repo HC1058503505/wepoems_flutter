@@ -125,6 +125,7 @@ class _PoemDetailState extends State<PoemDetail>
 //      );
 //    }
     return MaterialApp(
+      theme: Theme.of(context),
       home: Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -279,8 +280,8 @@ class _PoemDetailState extends State<PoemDetail>
           TabBar(
             isScrollable: true,
             controller: _tabController,
-            indicatorColor: Colors.blue,
-            labelColor: Colors.blue,
+            indicatorColor: Theme.of(context).primaryColor,
+            labelColor: Theme.of(context).primaryColor,
             unselectedLabelColor: Colors.black45,
             tabs: _tabs.map<Tab>((tab) {
               int index = _tabs.indexOf(tab);

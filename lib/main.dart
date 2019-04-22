@@ -1,10 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:wepoems_flutter/pages/root/root_page.dart';
 import 'package:wepoems_flutter/models/poem_recommend.dart';
+import 'package:wepoems_flutter/tools/bus_event.dart';
+import 'package:wepoems_flutter/models/strings.dart';
+import 'package:flustars/flustars.dart';
+import 'package:wepoems_flutter/models/colors.dart';
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  Color _themeColor = themeColorMap[
+      SpUtil.getString(Constant.KEY_THEME_COLOR, defValue: "blue")];
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    bus.add(Constant.KEY_THEME_CHANGE, (dynamic) {
+      setState(() {
+        _themeColor = themeColorMap[
+            SpUtil.getString(Constant.KEY_THEME_COLOR, defValue: "blue")];
+        print(_themeColor);
+      });
+    });
+  }
 
   // This widget is the root of your application.
   @override
@@ -14,17 +37,10 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
+      theme: ThemeData.light().copyWith(
+        primaryColor: _themeColor,
+        accentColor: _themeColor,
+        indicatorColor: Colors.white,
       ),
       home: RootPage(title: '古诗文斋'),
     );
@@ -35,4 +51,3 @@ class MyApp extends StatelessWidget {
     await provider.open(DatabasePath);
   }
 }
-

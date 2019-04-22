@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wepoems_flutter/pages/me/mine_collections.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:wepoems_flutter/pages/me/mine_settings.dart';
+
 class MePage extends StatefulWidget {
   @override
   _MePageState createState() => _MePageState();
@@ -15,21 +17,25 @@ class _MePageState extends State<MePage> {
 
   @override
   Widget build(BuildContext context) {
-
     return ListView.builder(
       padding: EdgeInsets.only(top: 20),
-      itemBuilder: (context, index){
+      itemBuilder: (context, index) {
         return GestureDetector(
-          onTap: (){
+          onTap: () {
             switch (index) {
               case 0:
-                Navigator.of(context).push(CupertinoPageRoute(builder: (context){
+                Navigator.of(context)
+                    .push(CupertinoPageRoute(builder: (context) {
                   return MineCollections();
                 }));
                 break;
               case 1:
                 break;
               case 2:
+                Navigator.of(context)
+                    .push(CupertinoPageRoute(builder: (context) {
+                  return MineSettings();
+                }));
                 break;
             }
           },
@@ -39,11 +45,14 @@ class _MePageState extends State<MePage> {
                 color: Colors.white10,
                 padding: EdgeInsets.only(left: 20),
                 height: 40,
-                child:  Row(
+                child: Row(
                   children: <Widget>[
                     Padding(
                       padding: EdgeInsets.only(right: 10),
-                      child: Icon(_items[index].iconData, color: Colors.black45,),
+                      child: Icon(
+                        _items[index].iconData,
+                        color: Colors.black45,
+                      ),
                     ),
                     Text(_items[index].title)
                   ],
@@ -57,12 +66,14 @@ class _MePageState extends State<MePage> {
       itemCount: _items.length,
     );
   }
-  
+
   Widget dividerSeparater(bool hasDivider) {
-    return hasDivider ? Container(
-      color: Colors.black.withAlpha(5),
-      height: 40,
-    ) : Divider(height: 10,color: Colors.black12, indent: 20);
+    return hasDivider
+        ? Container(
+            color: Colors.black.withAlpha(5),
+            height: 40,
+          )
+        : Divider(height: 10, color: Colors.black12, indent: 20);
   }
 }
 
