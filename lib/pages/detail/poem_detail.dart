@@ -175,7 +175,6 @@ class _PoemDetailState extends State<PoemDetail>
                           msg: "收藏成功",
                           toastLength: Toast.LENGTH_SHORT,
                           gravity: ToastGravity.CENTER);
-                      print(widget.poemRecom.from);
                       setState(() {});
                     }).catchError((error) {
                       Fluttertoast.showToast(

@@ -79,30 +79,40 @@ class _RecommandPageState extends State<RecommandPage> {
         ),
       );
     }
-    return RefreshIndicator(
-        child: ListView.separated(
-            controller: _scrollController,
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                child: PoemCell(poem: _recommandList[index]),
-                onTap: () {
-                  Navigator.of(context)
-                      .push(CupertinoPageRoute(builder: (context) {
-                    _recommandList[index].from = "recommend";
-                    _recommandList[index].isCollection = false;
-                    return PoemDetail(poemRecom: _recommandList[index]);
-                  }));
-                },
-              );
-            },
-            separatorBuilder: (context, index) {
-              return Container(
-                height: 1,
-                color: Colors.black12,
-              );
-            },
-            itemCount: _recommandList.length),
-        onRefresh: _onRefresh,
+    return Stack(
+      children: <Widget>[
+        RefreshIndicator(
+          child: ListView.separated(
+              controller: _scrollController,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  child: PoemCell(poem: _recommandList[index]),
+                  onTap: () {
+                    Navigator.of(context)
+                        .push(CupertinoPageRoute(builder: (context) {
+                      _recommandList[index].from = "recommend";
+                      _recommandList[index].isCollection = false;
+                      return PoemDetail(poemRecom: _recommandList[index]);
+                    }));
+                  },
+                );
+              },
+              separatorBuilder: (context, index) {
+                return Container(
+                  height: 1,
+                  color: Colors.black12,
+                );
+              },
+              itemCount: _recommandList.length),
+          onRefresh: _onRefresh,
+        ),
+        Offstage(
+          offstage: _recommandList.length > 0,
+          child: Center(
+            child: CircularProgressIndicator(),
+          ),
+        )
+      ],
     );
   }
 }

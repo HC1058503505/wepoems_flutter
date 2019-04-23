@@ -114,17 +114,27 @@ class _PoemsTagListState extends State<PoemsTagList> {
         centerTitle: true,
         title: Text(_navTitle),
       ),
-      body: RefreshIndicator(
-          child: ListView.builder(
-              controller: _scrollController,
-              itemBuilder: (context, index) {
-                return PoemsListCell(
-                    poem: _poemList[index],
-                    padding: EdgeInsets.fromLTRB(10, 0, 10, 0));
-              },
-              itemCount: _poemList.length
+      body: Stack(
+        children: <Widget>[
+          RefreshIndicator(
+              child: ListView.builder(
+                  controller: _scrollController,
+                  itemBuilder: (context, index) {
+                    return PoemsListCell(
+                        poem: _poemList[index],
+                        padding: EdgeInsets.fromLTRB(10, 0, 10, 0));
+                  },
+                  itemCount: _poemList.length
+              ),
+              onRefresh: _refresh
           ),
-          onRefresh: _refresh
+          Offstage(
+            offstage: _poemList.length > 0,
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          )
+        ],
       ),
     );
   }

@@ -13,10 +13,18 @@ class MineCollections extends StatefulWidget {
 class _MineCollectionsState extends State<MineCollections> {
   int _page = 0;
   List<PoemRecommend> _collections = List<PoemRecommend>();
+  ScrollController _scrollController = ScrollController();
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _scrollController.addListener((){
+
+      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+        _page++;
+        _getCollections();
+      }
+    });
     _getCollections();
   }
 
@@ -26,14 +34,34 @@ class _MineCollectionsState extends State<MineCollections> {
       provider.open(DatabasePath);
     }
     provider.getPoemRecomsPaging(limit: 10, page: _page).then((collectionList) {
+      if (collectionList == null) {
+        Fluttertoast.cancel();
+
+        Fluttertoast.showToast(
+          msg: "没有更多数据了",
+          gravity: ToastGravity.CENTER,
+          toastLength: Toast.LENGTH_SHORT
+        );
+
+        return;
+      }
+
+      if (_page == 0) {
+        _collections.clear();
+      }
+
       setState(() {
-        _collections = collectionList;
+        _collections.addAll(collectionList);
       });
     }).catchError((error) {
       print(error.toString());
     });
   }
 
+  Future _onRefresh() async {
+    _page = 0;
+    _getCollections();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,52 +111,60 @@ class _MineCollectionsState extends State<MineCollections> {
   Widget collectionsListView() {
     if (_collections == null || _collections.length == 0) {
       return Container(
+        color: Colors.white,
         child: Center(
           child: Text("您的收藏夹空空如也哦！"),
         ),
       );
     }
-    return ListView.separated(
-      itemBuilder: (context, index) {
-        return Dismissible(
-          direction: DismissDirection.endToStart,
-          key: Key(_collections[index].idnew),
-          child: GestureDetector(
-            child: PoemCell(poem: _collections[index]),
-            onTap: () {
-              Navigator.of(context).push(CupertinoPageRoute(builder: (context) {
-                return PoemDetail(poemRecom: _collections[index]);
-              }));
-            },
-          ),
-          onDismissed: (direction) {
-            PoemRecommendProvider provider = PoemRecommendProvider.singleton;
-            provider.delete(_collections[index].idnew).then((dynamic) {
-              Fluttertoast.showToast(
-                  msg: "取消收藏成功",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.CENTER);
+    return Container(
+      color: Colors.white,
+      child: RefreshIndicator(
+          child: ListView.separated(
+            controller: _scrollController,
+            itemBuilder: (context, index) {
+              return Dismissible(
+                direction: DismissDirection.endToStart,
+                key: Key(_collections[index].idnew),
+                child: GestureDetector(
+                  child: PoemCell(poem: _collections[index]),
+                  onTap: () {
+                    Navigator.of(context).push(CupertinoPageRoute(builder: (context) {
+                      return PoemDetail(poemRecom: _collections[index]);
+                    }));
+                  },
+                ),
+                onDismissed: (direction) {
+                  PoemRecommendProvider provider = PoemRecommendProvider.singleton;
+                  provider.delete(_collections[index].idnew).then((dynamic) {
+                    Fluttertoast.showToast(
+                        msg: "取消收藏成功",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.CENTER);
 
-              setState(() {
-                _collections.removeAt(index);
-              });
-            }).catchError((error) {
-              Fluttertoast.showToast(
-                  msg: "取消收藏失败",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.CENTER);
-            }).whenComplete(() {});
-          },
-          background: new Container(color: Colors.red),
-        );
-      },
-      separatorBuilder: (context, index) {
-        return Divider(
-          color: Colors.black12,
-          height: 1,
-        );
-      },
-      itemCount: _collections == null ? 0 : _collections.length,
+                    setState(() {
+                      _collections.removeAt(index);
+                    });
+                  }).catchError((error) {
+                    Fluttertoast.showToast(
+                        msg: "取消收藏失败",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.CENTER);
+                  }).whenComplete(() {});
+                },
+                background: new Container(color: Colors.red),
+              );
+            },
+            separatorBuilder: (context, index) {
+              return Divider(
+                color: Colors.black12,
+                height: 1,
+              );
+            },
+            itemCount: _collections == null ? 0 : _collections.length,
+          ),
+          onRefresh: _onRefresh
+      ),
     );
   }
 }
