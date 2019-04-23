@@ -14,6 +14,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:typed_data';
 import 'dart:ui';
 import 'dart:core';
+
 class PoemDetail extends StatefulWidget {
   PoemDetail({this.poemRecom});
   final PoemRecommend poemRecom;
@@ -36,8 +37,8 @@ class _PoemDetailState extends State<PoemDetail>
   PoemAnalyzeView _shangxisAnalyzeView;
   PoemAuthorView _authorView;
   bool _collectionEnable = true;
-  GlobalKey _rootWidgetKey = GlobalKey();
-  List<Uint8List> _images = List();
+//  GlobalKey _rootWidgetKey = GlobalKey();
+//  List<Uint8List> _images = List();
   @override
   void initState() {
     // TODO: implement initState
@@ -112,8 +113,6 @@ class _PoemDetailState extends State<PoemDetail>
     });
   }
 
-
-
 //  Future _capturePng() async {
 //    try {
 //      RenderRepaintBoundary boundary =
@@ -132,10 +131,8 @@ class _PoemDetailState extends State<PoemDetail>
 
   @override
   Widget build(BuildContext context) {
-
     return RepaintBoundary(
       child: MaterialApp(
-        key: _rootWidgetKey,
         theme: Theme.of(context),
         home: Scaffold(
           appBar: AppBar(
@@ -172,7 +169,7 @@ class _PoemDetailState extends State<PoemDetail>
                   if (!widget.poemRecom.isCollection) {
                     _collectionEnable = false;
                     widget.poemRecom.isCollection =
-                    !widget.poemRecom.isCollection;
+                        !widget.poemRecom.isCollection;
                     provider.insert(widget.poemRecom).then((dynamic) {
                       Fluttertoast.showToast(
                           msg: "收藏成功",
@@ -190,7 +187,7 @@ class _PoemDetailState extends State<PoemDetail>
                   } else {
                     _collectionEnable = false;
                     widget.poemRecom.isCollection =
-                    !widget.poemRecom.isCollection;
+                        !widget.poemRecom.isCollection;
                     provider.delete(widget.poemRecom.idnew).then((dynamic) {
                       Fluttertoast.showToast(
                           msg: "取消收藏成功",
@@ -239,7 +236,7 @@ class _PoemDetailState extends State<PoemDetail>
                   ),
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
-                          (context, index) {
+                      (context, index) {
                         return Padding(
                           padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
                           child: poemAnalyzePageView(index),

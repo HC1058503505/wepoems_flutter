@@ -28,7 +28,7 @@ class Colours {
 }
 
 Map<String, Color> themeColorMap = {
-  'gray': Colours.gray_33,
+  'brown': Colors.brown,
   'blue': Colors.blue,
   'blueAccent': Colors.blueAccent,
   'cyan': Colors.cyan,

@@ -5,6 +5,7 @@ import 'package:wepoems_flutter/models/poem_recommend.dart';
 import 'package:wepoems_flutter/pages/detail/poem_detail.dart';
 import 'package:wepoems_flutter/models/poem_detail_model.dart';
 import 'package:wepoems_flutter/pages/detail/poem_search_author.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class SearchController extends StatefulWidget {
   @override
@@ -14,10 +15,23 @@ class SearchController extends StatefulWidget {
 class _SearchControllerState extends State<SearchController> {
   TextEditingController _editingController = TextEditingController();
   List<Map<String, dynamic>> _searchResult = List<Map<String, dynamic>>();
+  FocusNode _focusNode = FocusNode();
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    if (_focusNode.hasFocus) {
+      _focusNode.unfocus();
+    }
+
+    _editingController.dispose();
+    _focusNode.dispose();
   }
 
   void _getSearchResult() async {
@@ -86,6 +100,49 @@ class _SearchControllerState extends State<SearchController> {
                     ),
                     Wrap(
                       children: resultList.map<Widget>((item) {
+                        List<String> splitStrs =
+                            item.nameStr.split(_editingController.text);
+                        List<TextSpan> textSpanWidgets = List<TextSpan>();
+
+                        int indexSplit = 0;
+                        for (String str in splitStrs) {
+                          if (str.length == 0 && indexSplit == 0) {
+                            TextSpan textSpan = TextSpan(
+                              text: _editingController.text,
+                              style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.bold),
+                            );
+                            textSpanWidgets.add(textSpan);
+                            indexSplit++;
+                            continue;
+                          }
+
+                          if (str.length > 0) {
+                            TextSpan normalTextSpan = TextSpan(
+                              text: str,
+                            );
+                            textSpanWidgets.add(normalTextSpan);
+                          }
+
+                          if (indexSplit == splitStrs.length - 1) {
+                            indexSplit++;
+                            break;
+                          }
+
+                          TextSpan textSpan = TextSpan(
+                            text: _editingController.text,
+                            style: TextStyle(
+                                color: Theme.of(context).primaryColor,
+                                fontWeight: FontWeight.bold),
+                          );
+                          textSpanWidgets.add(textSpan);
+                          indexSplit++;
+                        }
+
+                        TextSpan nameStrTextSpan =
+                            TextSpan(children: textSpanWidgets);
+
                         return GestureDetector(
                           onTap: () {
                             String type = _searchResult[index]["type"];
@@ -125,7 +182,7 @@ class _SearchControllerState extends State<SearchController> {
                                 Expanded(
                                   child: Padding(
                                     padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
-                                    child: Text(item.nameStr),
+                                    child: Text.rich(nameStrTextSpan),
                                   ),
                                 ),
                                 Offstage(
@@ -170,6 +227,7 @@ class _SearchControllerState extends State<SearchController> {
           borderRadius: BorderRadius.all(Radius.circular(10))),
       margin: EdgeInsets.all(20),
       child: TextField(
+        focusNode: _focusNode,
         cursorColor: Theme.of(context).primaryColor,
         controller: _editingController,
         decoration: InputDecoration(
@@ -179,7 +237,29 @@ class _SearchControllerState extends State<SearchController> {
           labelStyle: TextStyle(color: Colors.black26),
         ),
         textInputAction: TextInputAction.done,
+        onEditingComplete: () {
+          if (_focusNode.hasFocus && _editingController.text.length > 0) {
+            _focusNode.unfocus();
+          }
+        },
+        onChanged: (searchContent) {
+          if (searchContent.length == 0) {
+            setState(() {
+              _searchResult.clear();
+            });
+          }
+        },
         onSubmitted: (searchContent) {
+          if (searchContent.length == 0) {
+            Fluttertoast.cancel();
+            Fluttertoast.showToast(
+              msg: "请输入关键字",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+            );
+            return;
+          }
+
           _searchResult.clear();
           _getSearchResult();
         },
