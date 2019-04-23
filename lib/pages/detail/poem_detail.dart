@@ -175,6 +175,7 @@ class _PoemDetailState extends State<PoemDetail>
                           msg: "收藏成功",
                           toastLength: Toast.LENGTH_SHORT,
                           gravity: ToastGravity.CENTER);
+                      print(widget.poemRecom.from);
                       setState(() {});
                     }).catchError((error) {
                       Fluttertoast.showToast(
@@ -271,9 +272,8 @@ class _PoemDetailState extends State<PoemDetail>
     }
 
     PoemRecommend source =
-        widget.poemRecom.from == "poem" || widget.poemRecom.from == "mingju"
-            ? _detailModel.gushiwen
-            : widget.poemRecom;
+        _detailModel == null ? widget.poemRecom : _detailModel.gushiwen;
+
     return Container(
       color: Colors.white,
       width: MediaQuery.of(context).size.width,
