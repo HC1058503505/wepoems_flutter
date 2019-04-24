@@ -131,80 +131,83 @@ class _PoemDetailState extends State<PoemDetail>
 
   @override
   Widget build(BuildContext context) {
-    return RepaintBoundary(
-      child: MaterialApp(
-        theme: Theme.of(context),
-        home: Scaffold(
-          appBar: AppBar(
-            leading: IconButton(
-                icon: Icon(Icons.arrow_back_ios),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                }),
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(
-                    widget.poemRecom.isCollection
-                        ? Icons.star
-                        : Icons.star_border,
-                    color: Colors.white),
-                onPressed: () {
-                  Fluttertoast.cancel();
+    return Stack(
+      children: <Widget>[
+        MaterialApp(
+          theme: Theme.of(context),
+          home: Scaffold(
+            appBar: AppBar(
+              leading: IconButton(
+                  icon: Icon(Icons.arrow_back_ios),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  }),
+              actions: <Widget>[
+                IconButton(
+                  icon: Icon(
+                      _detailModel != null && _detailModel.gushiwen.isCollection
+                          ? Icons.star
+                          : Icons.star_border,
+                      color: Colors.white),
+                  onPressed: () {
+                    Fluttertoast.cancel();
 
-                  if (_detailModel == null ||
-                      widget.poemRecom.idnew.length == 0) {
-                    return;
-                  }
+                    if (_detailModel == null ||
+                        widget.poemRecom.idnew.length == 0) {
+                      return;
+                    }
 
-                  if (_collectionEnable == false) {
-                    Fluttertoast.showToast(
-                        msg: "您的操作太频繁了，稍等！",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.CENTER);
-                    return;
-                  }
+                    if (_collectionEnable == false) {
+                      Fluttertoast.showToast(
+                          msg: "您的操作太频繁了，稍等！",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER);
+                      return;
+                    }
 
-                  PoemRecommendProvider provider =
-                      PoemRecommendProvider.singleton;
-                  if (!widget.poemRecom.isCollection) {
-                    _collectionEnable = false;
-                    widget.poemRecom.isCollection =
-                        !widget.poemRecom.isCollection;
-                    provider.insert(widget.poemRecom).then((dynamic) {
-                      Fluttertoast.showToast(
-                          msg: "收藏成功",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.CENTER);
-                      setState(() {});
-                    }).catchError((error) {
-                      Fluttertoast.showToast(
-                          msg: "收藏失败",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.CENTER);
-                    }).whenComplete(() {
-                      _collectionEnable = true;
-                    });
-                  } else {
-                    _collectionEnable = false;
-                    widget.poemRecom.isCollection =
-                        !widget.poemRecom.isCollection;
-                    provider.delete(widget.poemRecom.idnew).then((dynamic) {
-                      Fluttertoast.showToast(
-                          msg: "取消收藏成功",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.CENTER);
-                      setState(() {});
-                    }).catchError((error) {
-                      Fluttertoast.showToast(
-                          msg: "取消收藏失败",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.CENTER);
-                    }).whenComplete(() {
-                      _collectionEnable = true;
-                    });
-                  }
-                },
-              ),
+                    PoemRecommendProvider provider =
+                        PoemRecommendProvider.singleton;
+                    if (!_detailModel.gushiwen.isCollection) {
+                      _collectionEnable = false;
+                      _detailModel.gushiwen.isCollection =
+                          !_detailModel.gushiwen.isCollection;
+                      provider.insert(_detailModel.gushiwen).then((dynamic) {
+                        Fluttertoast.showToast(
+                            msg: "收藏成功",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.CENTER);
+                        setState(() {});
+                      }).catchError((error) {
+                        Fluttertoast.showToast(
+                            msg: "收藏失败",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.CENTER);
+                      }).whenComplete(() {
+                        _collectionEnable = true;
+                      });
+                    } else {
+                      _collectionEnable = false;
+                      _detailModel.gushiwen.isCollection =
+                          !_detailModel.gushiwen.isCollection;
+                      provider
+                          .delete(_detailModel.gushiwen.idnew)
+                          .then((dynamic) {
+                        Fluttertoast.showToast(
+                            msg: "取消收藏成功",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.CENTER);
+                        setState(() {});
+                      }).catchError((error) {
+                        Fluttertoast.showToast(
+                            msg: "取消收藏失败",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.CENTER);
+                      }).whenComplete(() {
+                        _collectionEnable = true;
+                      });
+                    }
+                  },
+                ),
 //              IconButton(icon: Icon(Icons.share), onPressed: () {}),
 //              IconButton(icon: Icon(Icons.camera_alt), onPressed: () {
 //                _capturePng().then((value){
@@ -214,43 +217,50 @@ class _PoemDetailState extends State<PoemDetail>
 //                      gravity: ToastGravity.CENTER);
 //                });
 //              })
-            ],
-          ),
-          body: Offstage(
-            offstage: _detailModel == null,
-            child: Container(
-              color: Colors.white,
-              child: CustomScrollView(
-                slivers: <Widget>[
-                  SliverToBoxAdapter(
-                    child: poemHeader(),
-                  ),
-                  SliverPersistentHeader(
-                    pinned: true,
-                    floating: true,
-                    delegate: _SliverAppBarDelegate(
-                      minHeight: 55,
-                      maxHeight: 55,
-                      child: poemAnalyzeTabBar(),
+              ],
+            ),
+            body: Offstage(
+              offstage: _detailModel == null,
+              child: Container(
+                color: Colors.white,
+                child: CustomScrollView(
+                  slivers: <Widget>[
+                    SliverToBoxAdapter(
+                      child: poemHeader(),
                     ),
-                  ),
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        return Padding(
-                          padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
-                          child: poemAnalyzePageView(index),
-                        );
-                      },
-                      childCount: analyzesCount(),
+                    SliverPersistentHeader(
+                      pinned: true,
+                      floating: true,
+                      delegate: _SliverAppBarDelegate(
+                        minHeight: 55,
+                        maxHeight: 55,
+                        child: poemAnalyzeTabBar(),
+                      ),
                     ),
-                  ),
-                ],
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          return Padding(
+                            padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
+                            child: poemAnalyzePageView(index),
+                          );
+                        },
+                        childCount: analyzesCount(),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
         ),
-      ),
+        Offstage(
+          offstage: _detailModel != null,
+          child: Center(
+            child: CircularProgressIndicator(),
+          ),
+        )
+      ],
     );
   }
 
