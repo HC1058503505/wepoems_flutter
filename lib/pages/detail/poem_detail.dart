@@ -38,6 +38,7 @@ class _PoemDetailState extends State<PoemDetail>
   PoemAnalyzeView _shangxisAnalyzeView;
   PoemAuthorView _authorView;
   bool _collectionEnable = true;
+  bool _isLoading = false;
 //  GlobalKey _rootWidgetKey = GlobalKey();
 //  List<Uint8List> _images = List();
   @override
@@ -95,6 +96,9 @@ class _PoemDetailState extends State<PoemDetail>
   }
 
   void _getPoemDetail() async {
+    setState(() {
+      _isLoading = true;
+    });
     var postData = {"token": "gswapi", "id": widget.poemRecom.idnew};
     String path = widget.poemRecom.from == "mingju"
         ? "api/mingju/juv2.aspx"
@@ -104,13 +108,24 @@ class _PoemDetailState extends State<PoemDetail>
         _detailModel = PoemDetailModel.parseJSON(response);
       });
     }).catchError((error) {
-      DioError dioError = error as DioError;
-      if (dioError.type == DioErrorType.CONNECT_TIMEOUT) {
-        Fluttertoast.showToast(
-            msg: "网络连接超时，请检查网络",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER);
+      if (error is DioError) {
+        DioError dioError = error as DioError;
+        if (dioError.type == DioErrorType.CONNECT_TIMEOUT) {
+          Fluttertoast.showToast(
+              msg: "网络连接超时，请检查网络",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER);
+        }
       }
+
+      if (error is FlutterError) {
+        FlutterError flutterError = error as FlutterError;
+        print("poem_detail.dart:  ${flutterError.message}");
+      }
+    }).whenComplete(() {
+      setState(() {
+        _isLoading = false;
+      });
     });
   }
 
@@ -258,9 +273,30 @@ class _PoemDetailState extends State<PoemDetail>
           ),
         ),
         Offstage(
-          offstage: _detailModel != null,
+          offstage: !_isLoading,
           child: Center(
             child: CircularProgressIndicator(),
+          ),
+        ),
+        Offstage(
+          offstage: _detailModel != null || _isLoading,
+          child: GestureDetector(
+            onTap: () {
+              _getPoemDetail();
+            },
+            child: Container(
+              child: Center(
+                child: Text(
+                  "点击重试",
+                  style: TextStyle(
+                      color: _isLoading ? Colors.black26 : Colors.black,
+                      fontSize: 20,
+                      decoration: TextDecoration.none,
+                      fontWeight: FontWeight.normal
+                  ),
+                ),
+              ),
+            ),
           ),
         )
       ],
@@ -270,9 +306,17 @@ class _PoemDetailState extends State<PoemDetail>
   int analyzesCount() {
     switch (_tabController.index) {
       case 0:
-        return _detailModel == null ? 0 : _detailModel.fanyis.length;
+        return _detailModel == null
+            ? 0
+            : (_detailModel.fanyis.length == 0
+                ? 1
+                : _detailModel.fanyis.length);
       case 1:
-        return _detailModel == null ? 0 : _detailModel.shagnxis.length;
+        return _detailModel == null
+            ? 0
+            : (_detailModel.shagnxis.length == 0
+                ? 1
+                : _detailModel.shagnxis.length);
       case 2:
         return 1;
     }
@@ -347,14 +391,19 @@ class _PoemDetailState extends State<PoemDetail>
     switch (_tabController.index) {
       case 0:
         if (_fanyisAnalyzeView == null) {
-          _fanyisAnalyzeView =
-              PoemAnalyzeView(analyzes: _detailModel.fanyis, index: index);
+          _fanyisAnalyzeView = PoemAnalyzeView(
+              analyzes: _detailModel.fanyis,
+              index: index,
+              pageType: AnalyzePageType.AnalyzePageFanyi);
         }
         return _fanyisAnalyzeView;
       case 1:
         if (_shangxisAnalyzeView == null) {
-          _shangxisAnalyzeView =
-              PoemAnalyzeView(analyzes: _detailModel.shagnxis, index: index);
+          _shangxisAnalyzeView = PoemAnalyzeView(
+            analyzes: _detailModel.shagnxis,
+            index: index,
+            pageType: AnalyzePageType.AnalyzePageShangxi,
+          );
         }
         return _shangxisAnalyzeView;
       default:

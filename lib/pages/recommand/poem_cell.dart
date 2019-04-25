@@ -10,7 +10,7 @@ class PoemCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(10),
+      padding: EdgeInsets.all(15),
       color: Colors.white,
       child: Column(
         children: <Widget>[
@@ -31,7 +31,7 @@ class PoemCell extends StatelessWidget {
           Container(
               color: Colors.white,
               child: Text(
-                poem.author + '/' + poem.chaodai,
+                poem.chaodai + ' / ' + poem.author,
                 style: TextStyle(
                   color: Colors.black38,
                   fontSize: 16,
@@ -43,9 +43,9 @@ class PoemCell extends StatelessWidget {
           Container(
             alignment: Alignment.center,
             color: Colors.white,
-            child: Text(
-              poem.cont,
-              style: TextStyle(
+            child: Html(
+              data: poem.cont,
+              defaultTextStyle: TextStyle(
                 color: Colors.black,
                 fontSize: 16.0,
                 fontWeight: FontWeight.normal,

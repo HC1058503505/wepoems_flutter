@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wepoems_flutter/models/poem_recommend.dart';
 import 'package:wepoems_flutter/pages/detail/poem_detail.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_html/flutter_html.dart';
 
 class PoemsListCell extends StatelessWidget {
   PoemsListCell({this.poem, this.padding});
@@ -30,7 +31,7 @@ class PoemsListCell extends StatelessWidget {
                             color: Colors.black, fontWeight: FontWeight.bold)),
                   ),
                   SizedBox(width: 20),
-                  Text(poem.author + '/' + poem.chaodai,
+                  Text(poem.chaodai + ' / ' + poem.author,
                       style: TextStyle(color: Colors.black26))
                 ],
               ),
@@ -39,10 +40,9 @@ class PoemsListCell extends StatelessWidget {
               padding: EdgeInsets.only(bottom: 15),
               child: Container(
                 width: MediaQuery.of(context).size.width,
-                child: Text(
-                  poem.cont.split(RegExp("\n")).first,
-                  style: TextStyle(color: Colors.black),
-                  textAlign: TextAlign.left,
+                child: Html(
+                  data: poem.cont.replaceAll(RegExp("<div class=\'small\'></div>"), "\n").split(RegExp("\n")).first,
+                  defaultTextStyle: TextStyle(color: Colors.black),
                 ),
               ),
             ),

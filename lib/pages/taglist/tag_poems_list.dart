@@ -17,7 +17,6 @@ class PoemsTagList extends StatefulWidget {
 class _PoemsTagListState extends State<PoemsTagList> {
   int _page = 1;
   String _navTitle = "";
-  Map<String, dynamic> _postData = <String, dynamic>{};
   ScrollController _scrollController;
   List<PoemRecommend> _poemList = <PoemRecommend>[];
   bool _isError = false;
@@ -35,7 +34,17 @@ class _PoemsTagListState extends State<PoemsTagList> {
       }
     });
 
-    _postData = {"token": "gswapi", "id": "", "page": _page};
+
+
+    _getMoreTagList();
+  }
+
+  void _getMoreTagList() async {
+    if (_page > _sumPage) {
+      return;
+    }
+
+    Map<String, dynamic> _postData = {"token": "gswapi", "id": "", "page": _page};
     if (widget.tagType == TagType.Normal ||
         widget.tagType == TagType.Collections) {
       _postData.addAll({"tstr": widget.tagStr});
@@ -49,13 +58,6 @@ class _PoemsTagListState extends State<PoemsTagList> {
       _navTitle = "诗人." + widget.tagStr;
     }
 
-    _getMoreTagList();
-  }
-
-  void _getMoreTagList() async {
-    if (_page > _sumPage) {
-      return;
-    }
     DioManager.singleton
         .post(path: "api/shiwen/Default.aspx", data: _postData)
         .then((response) {
