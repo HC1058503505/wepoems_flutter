@@ -36,13 +36,6 @@ class _MineCollectionsState extends State<MineCollections> {
     }
     provider.getPoemRecomsPaging(limit: 10, page: _page).then((collectionList) {
       if (collectionList == null) {
-//        Fluttertoast.cancel();
-//
-//        Fluttertoast.showToast(
-//            msg: "没有更多数据了",
-//            gravity: ToastGravity.CENTER,
-//            toastLength: Toast.LENGTH_SHORT);
-
         return;
       }
 
@@ -68,6 +61,7 @@ class _MineCollectionsState extends State<MineCollections> {
     // TODO: implement dispose
     super.dispose();
     _scrollController.dispose();
+    Fluttertoast.cancel();
   }
 
   @override
@@ -82,74 +76,96 @@ class _MineCollectionsState extends State<MineCollections> {
             child: IconButton(
                 icon: Icon(Icons.delete, color: Colors.white),
                 onPressed: () {
-                  if (!Platform.isIOS && !Platform.isMacOS) {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: Text("温馨提示"),
-                            content: Text("确定清除全部收藏吗？"),
-                            actions: <Widget>[
-                              FlatButton(onPressed: () {}, child: Text("确定")),
-                              FlatButton(onPressed: () {}, child: Text("取消"))
-                            ],
-                          );
-                        });
-                  }
-
-                  showCupertinoDialog(
-                      context: context,
-                      builder: (context) {
-                        return CupertinoAlertDialog(
-                          title: Text("温馨提示"),
-                          content: Text("确定清除全部收藏吗？"),
-                          actions: <Widget>[
-                            CupertinoDialogAction(
-                              child: Text(
-                                "取消",
-                                style: TextStyle(
-                                    color: Theme.of(context).primaryColor),
-                              ),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            CupertinoDialogAction(
-                              child: Text(
-                                "确定",
-                                style: TextStyle(
-                                    color: Theme.of(context).primaryColor),
-                              ),
-                              onPressed: () {
-                                PoemRecommendProvider provider =
-                                    PoemRecommendProvider.singleton;
-                                provider.deleteAll().then((dynamic) {
-                                  Navigator.of(context).pop();
-                                  Fluttertoast.showToast(
-                                      msg: "清除成功",
-                                      toastLength: Toast.LENGTH_SHORT,
-                                      gravity: ToastGravity.CENTER);
-
-                                  setState(() {
-                                    _collections.clear();
-                                  });
-                                }).catchError((error) {
-                                  Fluttertoast.showToast(
-                                      msg: "清除失败",
-                                      toastLength: Toast.LENGTH_SHORT,
-                                      gravity: ToastGravity.CENTER);
-                                }).whenComplete(() {});
-                              },
-                            )
-                          ],
-                        );
-                      });
+                  clearCollections();
                 }),
           ),
         ],
       ),
       body: collectionsListView(),
     );
+  }
+
+  void sureClear() {
+    PoemRecommendProvider provider = PoemRecommendProvider.singleton;
+    provider.deleteAll().then((dynamic) {
+      Navigator.of(context).pop();
+      Fluttertoast.showToast(
+          msg: "清除成功",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER);
+
+      setState(() {
+        _collections.clear();
+      });
+    }).catchError((error) {
+      Fluttertoast.showToast(
+          msg: "清除失败",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER);
+    }).whenComplete(() {});
+  }
+
+  void clearCollections() {
+    if (!Platform.isIOS && !Platform.isMacOS) {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text("温馨提示"),
+              content: Text("确定清除全部收藏吗？"),
+              actions: <Widget>[
+                FlatButton(
+                  onPressed: () {
+                    sureClear();
+                  },
+                  child: Text(
+                    "确定",
+                    style: TextStyle(color: Theme.of(context).primaryColor),
+                  ),
+                ),
+                FlatButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(
+                    "取消",
+                    style: TextStyle(color: Theme.of(context).primaryColor),
+                  ),
+                ),
+              ],
+            );
+          });
+      return;
+    }
+
+    showCupertinoDialog(
+        context: context,
+        builder: (context) {
+          return CupertinoAlertDialog(
+            title: Text("温馨提示"),
+            content: Text("确定清除全部收藏吗？"),
+            actions: <Widget>[
+              CupertinoDialogAction(
+                child: Text(
+                  "取消",
+                  style: TextStyle(color: Theme.of(context).primaryColor),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              CupertinoDialogAction(
+                child: Text(
+                  "确定",
+                  style: TextStyle(color: Theme.of(context).primaryColor),
+                ),
+                onPressed: () {
+                  sureClear();
+                },
+              )
+            ],
+          );
+        });
   }
 
   Widget collectionsListView() {

@@ -14,6 +14,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:typed_data';
 import 'dart:ui';
 import 'dart:core';
+import 'dart:io';
 
 class PoemDetail extends StatefulWidget {
   PoemDetail({this.poemRecom});
@@ -138,7 +139,9 @@ class _PoemDetailState extends State<PoemDetail>
           home: Scaffold(
             appBar: AppBar(
               leading: IconButton(
-                  icon: Icon(Icons.arrow_back_ios),
+                  icon: Icon((Platform.isMacOS || Platform.isIOS)
+                      ? Icons.arrow_back_ios
+                      : Icons.arrow_back),
                   onPressed: () {
                     Navigator.of(context).pop();
                   }),
