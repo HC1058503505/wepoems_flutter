@@ -52,7 +52,7 @@ class _TagCategoryDynastyState extends State<TagCategoryDynasty> with AutomaticK
                     child: Container(
                       child: Padding(
                         padding: EdgeInsets.only(right: 0),
-                        child: Text(dynasty.count + "首", style: TextStyle(fontSize: 16),),
+                        child: Text(dynasty.count + "首", style: TextStyle(fontSize: 16), textAlign: TextAlign.center,),
                       ),
                     ),
                   )

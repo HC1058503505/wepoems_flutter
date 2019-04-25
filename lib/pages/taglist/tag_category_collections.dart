@@ -54,7 +54,7 @@ class _TagCategoryCollectionsState extends State<TagCategoryCollections> with Au
                     child: Container(
                       child: Padding(
                         padding: EdgeInsets.only(right: 0),
-                        child: Text(collection.count + "首", style: TextStyle(fontSize: 16),),
+                        child: Text(collection.count + "首", style: TextStyle(fontSize: 16), textAlign: TextAlign.center,),
                       ),
                     ),
                   )
