@@ -204,7 +204,7 @@ class _SearchControllerState extends State<SearchController> {
   }
 
   Widget searchResult() {
-    return ListView.separated(
+    return ListView.builder(
       itemBuilder: (context, index) {
         List<PoemRecommend> resultList = _searchResult[index]["results"];
         return Column(
@@ -212,7 +212,7 @@ class _SearchControllerState extends State<SearchController> {
           children: <Widget>[
             Container(
               child: Text(_searchResult[index]["title"] + ":"),
-              color: Colors.black12,
+              color: Colors.black.withAlpha(8),
               padding: EdgeInsets.only(left: 20),
               width: MediaQuery.of(context).size.width,
               height: 40,
@@ -292,7 +292,7 @@ class _SearchControllerState extends State<SearchController> {
                     decoration: BoxDecoration(
                         border: Border(
                             bottom: BorderSide(
-                                color: Colors.black12,
+                                color: Colors.black26.withAlpha(20),
                                 width: 1,
                                 style: BorderStyle.solid))),
                     child: Row(
@@ -320,12 +320,6 @@ class _SearchControllerState extends State<SearchController> {
               }).toList(),
             )
           ],
-        );
-      },
-      separatorBuilder: (context, index) {
-        return Container(
-          height: 1,
-          color: Colors.black26,
         );
       },
       itemCount: _searchResult.length,

@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wepoems_flutter/models/poem_detail_model.dart';
 import 'package:flutter_html/flutter_html.dart';
 
-enum AnalyzePageType {
-  AnalyzePageFanyi,
-  AnalyzePageShangxi
-}
+enum AnalyzePageType { AnalyzePageFanyi, AnalyzePageShangxi }
 
 class PoemAnalyzeView extends StatelessWidget {
   PoemAnalyzeView({this.analyzes, this.index, this.pageType});
@@ -19,9 +16,8 @@ class PoemAnalyzeView extends StatelessWidget {
 //class _PoemAnalyzeViewState extends State<PoemAnalyzeView>  with AutomaticKeepAliveClientMixin{
   @override
   Widget build(BuildContext context) {
-
     String msg = pageType == AnalyzePageType.AnalyzePageFanyi ? "译注" : "赏析";
-    if (analyzes.  length == 0) {
+    if (analyzes.length == 0) {
       return Container(
         height: 200,
         child: Center(
@@ -68,7 +64,7 @@ class PoemAnalyzeView extends StatelessWidget {
     );
   }
 
-  @override
-  // TODO: implement wantKeepAlive
-  bool get wantKeepAlive => true;
+//  @override
+//  // TODO: implement wantKeepAlive
+//  bool get wantKeepAlive => true;
 }

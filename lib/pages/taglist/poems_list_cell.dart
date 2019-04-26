@@ -16,7 +16,8 @@ class PoemsListCell extends StatelessWidget {
           return PoemDetail(poemRecom: poem);
         }));
       },
-      child: Padding(
+      child: Container(
+        color: Colors.white,
         padding: padding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -41,14 +42,14 @@ class PoemsListCell extends StatelessWidget {
               child: Container(
                 width: MediaQuery.of(context).size.width,
                 child: Html(
-                  data: poem.cont.replaceAll(RegExp("<div class=\'small\'></div>"), "\n").split(RegExp("\n")).first,
+                  data: poem.cont.split(RegExp("\n")).first,
                   defaultTextStyle: TextStyle(color: Colors.black),
                 ),
               ),
             ),
-            Container(
-              height: 1,
-              color: Colors.black12,
+            Divider(
+              height: 0,
+              color: Colors.black26,
             )
           ],
         ),

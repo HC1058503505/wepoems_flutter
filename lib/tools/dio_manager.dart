@@ -2,27 +2,27 @@ import 'package:dio/dio.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'dart:async';
+
 class DioManager {
   Dio _dio;
 
   DioManager._init() {
     BaseOptions options = BaseOptions(
-      method: "get",
-      baseUrl: "https://app.gushiwen.org/",
-      connectTimeout: 5000,
-      receiveTimeout: 3000,
-      contentType: ContentType('application', 'x-www-form-urlencoded',charset: 'utf-8')
-    );
+        method: "get",
+        baseUrl: "https://app.gushiwen.org/",
+        connectTimeout: 5000,
+        receiveTimeout: 3000,
+        contentType: ContentType('application', 'x-www-form-urlencoded',
+            charset: 'utf-8'));
     _dio = Dio(options);
   }
 
   static DioManager singleton = DioManager._init();
 
-
   factory DioManager() => singleton;
 
   Future<dynamic> get({path, params}) async {
-    Response response =  await _dio.get(path, queryParameters: params);
+    Response response = await _dio.get(path, queryParameters: params);
     String responseStr = response.data.toString();
     var responseJson = json.decode(responseStr);
     return responseJson;

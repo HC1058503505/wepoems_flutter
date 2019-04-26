@@ -178,7 +178,6 @@ class _MineCollectionsState extends State<MineCollections> {
       );
     }
     return Container(
-      color: Colors.white,
       child: RefreshIndicator(
           child: ListView.separated(
             controller: _scrollController,
@@ -219,8 +218,7 @@ class _MineCollectionsState extends State<MineCollections> {
             },
             separatorBuilder: (context, index) {
               return Divider(
-                color: Colors.black12,
-                height: 1,
+                color: Colors.transparent,
               );
             },
             itemCount: _collections == null ? 0 : _collections.length,

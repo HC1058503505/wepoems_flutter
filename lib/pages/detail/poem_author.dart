@@ -8,111 +8,88 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:wepoems_flutter/pages/taglist/poems_list_cell.dart';
 import 'package:wepoems_flutter/pages/taglist/tag_poems_list.dart';
 
-class PoemAuthorView extends StatefulWidget {
-  PoemAuthorView({this.author});
-  final PoemAuthor author;
-  @override
-  _PoemAuthorViewState createState() => _PoemAuthorViewState();
-}
+enum PoemAuthorType { PoemAuthorBrief, PomeAuthorDetail }
 
-class _PoemAuthorViewState extends State<PoemAuthorView>
-    with AutomaticKeepAliveClientMixin {
-  List<PoemRecommend> _poemRecoms = <PoemRecommend>[];
-  List<PoemAnalyze> _analyzes = <PoemAnalyze>[];
-  PoemAuthor _authorInfo;
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    _getMoreMsg();
-  }
+class PoemAuthorView extends StatelessWidget {
+  PoemAuthorView({this.poemRecoms, this.analyzes, this.authorInfo});
+  final List<PoemRecommend> poemRecoms;
+  final List<PoemAnalyze> analyzes;
+  final PoemAuthor authorInfo;
+//  @override
+//  _PoemAuthorViewState createState() => _PoemAuthorViewState();
+//}
+//
+//class _PoemAuthorViewState extends State<PoemAuthorView> {
 
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    DioManager.singleton.cancle();
-  }
+//  @override
+//  void initState() {
+//    // TODO: implement initState
+//    super.initState();
+//  }
 
-  void _getMoreMsg() async {
-    if (widget.author == null || widget.author.idnew.length == 0) {
-      return;
-    }
-    var postData = {'token': 'gswapi', 'id': widget.author.idnew};
-    var response = await DioManager.singleton.post(
-        path: "api/author/author2.aspx",
-        data: postData) as Map<String, dynamic>;
-
-    PoemAuthor authorTemp = PoemAuthor.parseJSON(response["tb_author"]);
-
-    var tb_gushiwens = response["tb_gushiwens"] as Map<String, dynamic>;
-    var gushiwens = tb_gushiwens["gushiwens"] as List<dynamic>;
-    var gushiwensList = gushiwens.map<PoemRecommend>((poem) {
-      return PoemRecommend.parseJSON(poem);
-    }).toList();
-
-    var tb_ziliaos = response["tb_ziliaos"] as Map<String, dynamic>;
-    var ziliaos = tb_ziliaos["ziliaos"] as List<dynamic>;
-    var analyzesList = ziliaos.map<PoemAnalyze>((analyze) {
-      return PoemAnalyze.parseJSON(analyze);
-    }).toList();
-
-    setState(() {
-      _authorInfo = authorTemp;
-      _poemRecoms = gushiwensList;
-      _analyzes = analyzesList;
-    });
-  }
+//  @override
+//  void dispose() {
+//    // TODO: implement dispose
+//    super.dispose();
+//    DioManager.singleton.cancle();
+//  }
 
   @override
   Widget build(BuildContext context) {
-    if (_authorInfo == null ||
-        widget.author == null ||
-        widget.author.idnew.length == 0) {
-      return Container(
-        color: Colors.white,
-      );
-    }
-
-    String imageURL =
-        "https://img.gushiwen.org" + "/authorImg/" + _authorInfo.pic + ".jpg";
-
     return Container(
       padding: EdgeInsets.only(bottom: 20),
       child: Column(
         children: <Widget>[
           Offstage(
-            offstage: _authorInfo.pic.length <= 0,
+            offstage: authorInfo == null || authorInfo.pic == null,
             child: Padding(
               padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
               child: ClipRRect(
                 child: Image(
                   fit: BoxFit.fitHeight,
-                  image: CachedNetworkImageProvider(imageURL),
+                  image: CachedNetworkImageProvider(
+                      "https://img.gushiwen.org/authorImg/${authorInfo.pic ?? ""}.jpg"),
                   height: 180,
                 ),
                 borderRadius: BorderRadius.all(Radius.circular(126)),
               ),
             ),
           ),
-          Html(
-            data: _authorInfo.cont,
+          Offstage(
+            offstage: authorInfo == null || authorInfo.cont == null,
+            child: Html(
+              data: authorInfo.cont ?? "",
+            ),
           ),
-          poemRecomView(),
-          analyzesView()
+          Offstage(
+            offstage: poemRecoms == null || poemRecoms.length == 0,
+            child: poemRecomView(context),
+          ),
+          Offstage(
+            offstage: analyzes == null || analyzes.length == 0,
+            child: analyzesView(),
+          ),
+          Offstage(
+            offstage: authorInfo != null &&
+                authorInfo.idnew != null &&
+                authorInfo.idnew.length > 0,
+            child: Container(
+              height: 200,
+              child: Center(
+                child: Text(
+                  authorInfo.nameStr ?? "佚名",
+                  style: TextStyle(color: Colors.black26),
+                ),
+              ),
+            ),
+          )
         ],
       ),
     );
   }
 
-  Widget poemRecomView() {
-    if (_poemRecoms.length == 0) {
-      return Container(
-        child: RefreshProgressIndicator(),
-      );
-    }
-
-    List<Widget> poemWidgets = _poemRecoms.map<Widget>((poem) {
+  Widget poemRecomView(BuildContext context) {
+    List<Widget> poemWidgets = poemRecoms.map<Widget>((poem) {
       return PoemsListCell(poem: poem, padding: EdgeInsets.all(0));
     }).toList();
 
@@ -125,15 +102,23 @@ class _PoemAuthorViewState extends State<PoemAuthorView>
           Navigator.of(context).push(CupertinoPageRoute(builder: (context) {
             return PoemsTagList(
               tagType: TagType.Author,
-              tagStr: widget.author.nameStr,
+              tagStr: authorInfo.nameStr,
             );
           }));
         });
     poemWidgets.add(faltBtn);
 
-    var titleText = Text("代表作",
+    var titleText = Container(
+      child: Text(
+        "代表作",
         style: TextStyle(
-            color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20.0));
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+          fontSize: 20.0,
+        ),
+      ),
+    );
+
     return Padding(
       padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
       child: Column(
@@ -149,11 +134,7 @@ class _PoemAuthorViewState extends State<PoemAuthorView>
   }
 
   Widget analyzesView() {
-    if (_analyzes.length == 0) {
-      return Container();
-    }
-
-    List<Widget> analyzeWidgets = _analyzes.map<Widget>((analyze) {
+    List<Widget> analyzeWidgets = analyzes.map<Widget>((analyze) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -180,7 +161,7 @@ class _PoemAuthorViewState extends State<PoemAuthorView>
     );
   }
 
-  @override
-  // TODO: implement wantKeepAlive
-  bool get wantKeepAlive => true;
+//  @override
+//  // TODO: implement wantKeepAlive
+//  bool get wantKeepAlive => true;
 }

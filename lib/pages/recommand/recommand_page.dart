@@ -4,6 +4,8 @@ import 'package:wepoems_flutter/pages/recommand/poem_cell.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:wepoems_flutter/tools/dio_manager.dart';
 import 'package:wepoems_flutter/pages/detail/poem_detail.dart';
+import 'package:wepoems_flutter/pages/detail/loading.dart';
+import 'package:wepoems_flutter/pages/detail/error_retry_page.dart';
 
 class RecommandPage extends StatefulWidget {
   @override
@@ -15,7 +17,7 @@ class _RecommandPageState extends State<RecommandPage> {
   List<PoemRecommend> _recommandList = <PoemRecommend>[];
 
   int _page = 0;
-  bool _isError = false;
+  bool _isLoading = false;
   @override
   void initState() {
     // TODO: implement initState
@@ -33,27 +35,36 @@ class _RecommandPageState extends State<RecommandPage> {
   }
 
   void _getPoems() async {
+    if (_recommandList.length == 0) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
     var postData = {"pwd": "", "token": "gswapi", "id": "", "page": _page};
     DioManager.singleton
         .post(path: "api/upTimeTop11.aspx", data: postData)
         .then((response) {
-      var gushiwens = response["gushiwens"] as List<dynamic>;
-      var gushiwenList = gushiwens.map((poem) {
-        return PoemRecommend.parseJSON(poem);
-      });
+          var gushiwens = response["gushiwens"] as List<dynamic>;
+          var gushiwenList = gushiwens.map((poem) {
+            return PoemRecommend.parseJSON(poem);
+          });
 
-      if (_page == 0) {
-        _recommandList.clear();
-      }
+          if (_page == 0) {
+            _recommandList.clear();
+          }
 
-      setState(() {
-        _recommandList.addAll(gushiwenList);
-      });
-    }).catchError((error) {
-      setState(() {
-        _isError = true;
-      });
-    });
+          setState(() {
+            _recommandList.addAll(gushiwenList);
+          });
+        })
+        .catchError((error) {})
+        .whenComplete(() {
+          if (_isLoading == true) {
+            setState(() {
+              _isLoading = false;
+            });
+          }
+        });
   }
 
   Future<void> _onRefresh() async {
@@ -63,22 +74,6 @@ class _RecommandPageState extends State<RecommandPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isError) {
-      _isError = false;
-      return GestureDetector(
-        onTap: () {
-          _getPoems();
-        },
-        child: Container(
-          child: Center(
-            child: Text(
-              "点击重试",
-              style: TextStyle(color: Colors.black, fontSize: 20),
-            ),
-          ),
-        ),
-      );
-    }
     return Stack(
       children: <Widget>[
         RefreshIndicator(
@@ -98,19 +93,19 @@ class _RecommandPageState extends State<RecommandPage> {
                 );
               },
               separatorBuilder: (context, index) {
-                return Container(
-                  height: 1,
-                  color: Colors.black12,
+                return Divider(
+                  color: Colors.transparent,
                 );
               },
               itemCount: _recommandList.length),
           onRefresh: _onRefresh,
         ),
-        Offstage(
-          offstage: _recommandList.length > 0,
-          child: Center(
-            child: CircularProgressIndicator(),
-          ),
+        LoadingIndicator(isLoading: _isLoading),
+        RetryPage(
+          offstage: _isLoading || _recommandList.length > 0,
+          onTap: () {
+            _getPoems();
+          },
         )
       ],
     );

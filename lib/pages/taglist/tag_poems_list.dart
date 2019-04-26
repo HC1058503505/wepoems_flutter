@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:wepoems_flutter/tools/dio_manager.dart';
 import 'package:wepoems_flutter/models/poem_recommend.dart';
 import 'package:wepoems_flutter/pages/taglist/poems_list_cell.dart';
+import 'package:wepoems_flutter/pages/detail/loading.dart';
+import 'package:wepoems_flutter/pages/detail/error_retry_page.dart';
 
 enum TagType { Normal, Author, Dynasty, Collections, Category }
 
@@ -17,15 +19,14 @@ class PoemsTagList extends StatefulWidget {
 class _PoemsTagListState extends State<PoemsTagList> {
   int _page = 1;
   String _navTitle = "";
-  ScrollController _scrollController;
+  ScrollController _scrollController = ScrollController();
   List<PoemRecommend> _poemList = <PoemRecommend>[];
-  bool _isError = false;
   int _sumPage = 1;
+  bool _isLoading = false;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _scrollController = ScrollController();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent) {
@@ -34,9 +35,14 @@ class _PoemsTagListState extends State<PoemsTagList> {
       }
     });
 
-
-
     _getMoreTagList();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _scrollController.dispose();
   }
 
   void _getMoreTagList() async {
@@ -44,7 +50,17 @@ class _PoemsTagListState extends State<PoemsTagList> {
       return;
     }
 
-    Map<String, dynamic> _postData = {"token": "gswapi", "id": "", "page": _page};
+    if (_poemList.length == 0) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
+
+    Map<String, dynamic> _postData = {
+      "token": "gswapi",
+      "id": "",
+      "page": _page
+    };
     if (widget.tagType == TagType.Normal ||
         widget.tagType == TagType.Collections) {
       _postData.addAll({"tstr": widget.tagStr});
@@ -64,21 +80,25 @@ class _PoemsTagListState extends State<PoemsTagList> {
           _sumPage = response["sumPage"] as int;
           List<dynamic> gushiwens = response["gushiwens"] as List<dynamic>;
           List<PoemRecommend> poems = gushiwens.map<PoemRecommend>((gushiwen) {
-          return PoemRecommend.parseJSON(gushiwen);
-      }).toList();
+            return PoemRecommend.parseJSON(gushiwen);
+          }).toList();
 
-      if (_page == 1) {
-        _poemList.clear();
-      }
+          if (_page == 1) {
+            _poemList.clear();
+          }
 
-      setState(() {
-        _poemList.addAll(poems);
-      });
-    }).catchError((error) {
-      setState(() {
-        _isError = true;
-      });
-    });
+          setState(() {
+            _poemList.addAll(poems);
+          });
+        })
+        .catchError((error) {})
+        .whenComplete(() {
+          if (_isLoading == true) {
+            setState(() {
+              _isLoading = false;
+            });
+          }
+        });
   }
 
   Future<void> _refresh() async {
@@ -88,29 +108,6 @@ class _PoemsTagListState extends State<PoemsTagList> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isError) {
-      _isError = false;
-      return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: Text(_navTitle),
-        ),
-        body: GestureDetector(
-          onTap: () {
-            _getMoreTagList();
-          },
-          child: Container(
-            child: Center(
-              child: Text(
-                "点击重试",
-                style: TextStyle(color: Colors.black, fontSize: 20),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -126,15 +123,14 @@ class _PoemsTagListState extends State<PoemsTagList> {
                         poem: _poemList[index],
                         padding: EdgeInsets.fromLTRB(10, 0, 10, 0));
                   },
-                  itemCount: _poemList.length
-              ),
-              onRefresh: _refresh
-          ),
-          Offstage(
-            offstage: _poemList.length > 0,
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
+                  itemCount: _poemList.length),
+              onRefresh: _refresh),
+          LoadingIndicator(isLoading: _isLoading),
+          RetryPage(
+            offstage: _isLoading || _poemList.length > 0,
+            onTap: () {
+              _getMoreTagList();
+            },
           )
         ],
       ),

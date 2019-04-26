@@ -44,6 +44,7 @@ class PoemRecommend {
         .replaceAll(RegExp("<br/>"), "\n")
         .replaceAll(RegExp("[\(|（].*[\)|）]"), "")
         .replaceAll(RegExp("<span.*span>"), "")
+        .replaceAll(RegExp("<div class=\'small\'></div>"), "\n")
         .replaceAll(RegExp("\n\n"), "\n")
         .trim();
     tag = poem["tag"].toString().replaceAll(RegExp("null"), "");
@@ -82,15 +83,13 @@ class PoemRecommend {
 }
 
 final String DatabasePath = "collections.db";
+
 class PoemRecommendProvider {
   Database db;
 
-  PoemRecommendProvider._init() {
-
-  }
+  PoemRecommendProvider._init() {}
 
   static PoemRecommendProvider singleton = PoemRecommendProvider._init();
-
 
   Future open(String path) async {
     db = await openDatabase(path, version: 1,
@@ -117,7 +116,16 @@ create table if not exists $tableCollection(
 
   Future<PoemRecommend> getPoemRecom(String id) async {
     List<Map> maps = await db.query(tableCollection,
-        columns: [columnIdnew, columnNameStr, columnAuthor, columnChaodai, columnCont, columnTag, columnFrom, columnCollection],
+        columns: [
+          columnIdnew,
+          columnNameStr,
+          columnAuthor,
+          columnChaodai,
+          columnCont,
+          columnTag,
+          columnFrom,
+          columnCollection
+        ],
         where: '$columnIdnew = ?',
         whereArgs: [id]);
     if (maps.length > 0) {
@@ -126,18 +134,25 @@ create table if not exists $tableCollection(
     return null;
   }
 
-  Future<List<PoemRecommend>> getPoemRecomsPaging({int limit, int page}) async{
-
+  Future<List<PoemRecommend>> getPoemRecomsPaging({int limit, int page}) async {
     List<Map> maps = await db.query(tableCollection,
-      columns: [columnIdnew, columnNameStr, columnAuthor, columnChaodai, columnCont, columnTag, columnFrom, columnCollection],
+        columns: [
+          columnIdnew,
+          columnNameStr,
+          columnAuthor,
+          columnChaodai,
+          columnCont,
+          columnTag,
+          columnFrom,
+          columnCollection
+        ],
         limit: limit,
         distinct: true,
         orderBy: columnId + " DESC",
-        offset: page * limit
-    );
+        offset: page * limit);
 
     if (maps.length > 0) {
-     return maps.map<PoemRecommend>((item){
+      return maps.map<PoemRecommend>((item) {
         return PoemRecommend.fromMap(item);
       }).toList();
     }
@@ -146,7 +161,8 @@ create table if not exists $tableCollection(
   }
 
   Future delete(String id) async {
-    return await db.delete(tableCollection, where: '$columnIdnew = ?', whereArgs: [id]);
+    return await db
+        .delete(tableCollection, where: '$columnIdnew = ?', whereArgs: [id]);
   }
 
   Future deleteAll() async {
