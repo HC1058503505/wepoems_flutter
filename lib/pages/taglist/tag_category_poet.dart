@@ -86,53 +86,60 @@ class _TagCategoryPoetState extends State<TagCategoryPoet>
       temp.add(titleWidget);
 
       SliverFixedExtentList extentList = SliverFixedExtentList(
-          delegate:
-              SliverChildListDelegate(author.list.map<Widget>((authorItem) {
-            return GestureDetector(
-              onTap: () {
-                Navigator.of(context)
-                    .push(CupertinoPageRoute(builder: (context) {
-                  return PoemsTagList(
-                      tagStr: authorItem.poet_name, tagType: TagType.Author);
-                }));
-              },
-              child: Container(
-                color: Colors.white10,
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Container(
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 20),
-                          child: Text(
-                            authorItem.poet_name,
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        color: Colors.white10,
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        child: Padding(
-                          padding: EdgeInsets.only(right: 0),
-                          child: Text(
-                            authorItem.poetry_count + "首",
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ),
-                      ),
-                    )
-                  ],
+        delegate: SliverChildListDelegate(author.list.map<Widget>((authorItem) {
+          return GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(CupertinoPageRoute(builder: (context) {
+                return PoemsTagList(
+                    tagStr: authorItem.poet_name, tagType: TagType.Author);
+              }));
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: Colors.black.withAlpha(12),
+                    style: BorderStyle.solid,
+                    width: 1,
+                  ),
                 ),
               ),
-            );
-          }).toList()),
-          itemExtent: 50);
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Container(
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 20),
+                        child: Text(
+                          authorItem.poet_name,
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      color: Colors.white10,
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      child: Padding(
+                        padding: EdgeInsets.only(right: 0),
+                        child: Text(
+                          authorItem.poetry_count + "首",
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          );
+        }).toList()),
+        itemExtent: 50,
+      );
 
       temp.add(extentList);
     }

@@ -41,7 +41,9 @@ class PoemAuthorView extends StatelessWidget {
       child: Column(
         children: <Widget>[
           Offstage(
-            offstage: authorInfo == null || authorInfo.pic == null,
+            offstage: authorInfo == null ||
+                authorInfo.pic == null ||
+                authorInfo.pic.length == 0,
             child: Padding(
               padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
               child: ClipRRect(

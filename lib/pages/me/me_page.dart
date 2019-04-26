@@ -17,53 +17,59 @@ class _MePageState extends State<MePage> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      padding: EdgeInsets.only(top: 20),
-      itemBuilder: (context, index) {
-        return GestureDetector(
-          onTap: () {
-            switch (index) {
-              case 0:
-                Navigator.of(context)
-                    .push(CupertinoPageRoute(builder: (context) {
-                  return MineCollections();
-                }));
-                break;
-              case 1:
-                break;
-              case 2:
-                Navigator.of(context)
-                    .push(CupertinoPageRoute(builder: (context) {
-                  return MineSettings();
-                }));
-                break;
-            }
-          },
-          child: Column(
-            children: <Widget>[
-              Container(
-                color: Colors.white10,
-                padding: EdgeInsets.only(left: 20),
-                height: 40,
-                child: Row(
-                  children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.only(right: 10),
-                      child: Icon(
-                        _items[index].iconData,
-                        color: Colors.black45,
-                      ),
+    return Container(
+      color: Colors.black.withAlpha(5),
+      child: ListView.separated(
+        padding: EdgeInsets.only(top: 20),
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: () {
+              switch (index) {
+                case 0:
+                  Navigator.of(context)
+                      .push(CupertinoPageRoute(builder: (context) {
+                    return MineCollections();
+                  }));
+                  break;
+                case 1:
+                  break;
+                case 2:
+                  Navigator.of(context)
+                      .push(CupertinoPageRoute(builder: (context) {
+                    return MineSettings();
+                  }));
+                  break;
+              }
+            },
+            child: Container(
+              color: Colors.white,
+              padding: EdgeInsets.only(left: 20),
+              height: 50,
+              child: Row(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(right: 10),
+                    child: Icon(
+                      _items[index].iconData,
+                      color: Colors.black45,
                     ),
-                    Text(_items[index].title)
-                  ],
-                ),
+                  ),
+                  Text(_items[index].title)
+                ],
               ),
-              dividerSeparater(_items[index].hasDivider)
-            ],
-          ),
-        );
-      },
-      itemCount: _items.length,
+            ),
+          );
+        },
+        itemCount: _items.length,
+        separatorBuilder: (context, index) {
+          return Container(
+            child: Divider(
+              color: Colors.transparent,
+              height: _items[index].hasDivider ? 16 : 1,
+            ),
+          );
+        },
+      ),
     );
   }
 
