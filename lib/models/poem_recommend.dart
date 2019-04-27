@@ -35,17 +35,19 @@ class PoemRecommend {
     nameStr = poem["nameStr"].toString().replaceAll(RegExp("null"), "");
     author = poem["author"].toString().replaceAll(RegExp("null"), "");
     chaodai = poem["chaodai"].toString().replaceAll(RegExp("null"), "");
+
     cont = poem["cont"]
         .toString()
         .replaceAll(RegExp("null"), "")
         .replaceAll(RegExp("<(\/)?p>"), "")
-        .replaceAll(RegExp("<br \/>"), "\n")
-        .replaceAll(RegExp("<br>"), "\n")
-        .replaceAll(RegExp("<br/>"), "\n")
+        .replaceAll(RegExp("<br(.*?)>"), "\n\n")
+//        .replaceAll(RegExp("\n"), "<br>")
+//        .replaceAll(RegExp("<br>"), "\n")
+//        .replaceAll(RegExp("<br/>"), "\n")
         .replaceAll(RegExp("[\(|（].*[\)|）]"), "")
         .replaceAll(RegExp("<span.*span>"), "")
-        .replaceAll(RegExp("<div class=\'small\'></div>"), "\n")
-        .replaceAll(RegExp("\n\n"), "\n")
+        .replaceAll(RegExp("<div class=\'small\'></div>"), "\n\n")
+//        .replaceAll(RegExp("\n\n"), "\n")
         .trim();
     tag = poem["tag"].toString().replaceAll(RegExp("null"), "");
   }
@@ -68,14 +70,14 @@ class PoemRecommend {
     nameStr = map[columnNameStr].toString().replaceAll(RegExp("null"), "");
     author = map[columnAuthor].toString().replaceAll(RegExp("null"), "");
     chaodai = map[columnChaodai].toString().replaceAll(RegExp("null"), "");
-    cont = map[columnCont]
-        .toString()
-        .replaceAll(RegExp("null"), "")
-        .replaceAll(RegExp("<(\/)?p>"), "")
-        .replaceAll(RegExp("<br \/>"), "\n")
-        .replaceAll(RegExp("[\(|（].*[\)|）]"), "")
-        .replaceAll(RegExp("<span.*span>"), "")
-        .trim();
+    cont = map[columnCont];
+//        .toString()
+//        .replaceAll(RegExp("null"), "")
+//        .replaceAll(RegExp("<(\/)?p>"), "")
+//        .replaceAll(RegExp("<br \/>"), "\n")
+//        .replaceAll(RegExp("[\(|（].*[\)|）]"), "")
+//        .replaceAll(RegExp("<span.*span>"), "")
+//        .trim();
     tag = map[columnTag].toString().replaceAll(RegExp("null"), "");
     isCollection = (map[columnCollection] as int == 1);
     from = map[columnFrom].toString().replaceAll(RegExp("null"), "");

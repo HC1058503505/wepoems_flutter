@@ -7,7 +7,8 @@ import 'package:wepoems_flutter/models/poem_recommend.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:wepoems_flutter/pages/taglist/poems_list_cell.dart';
 import 'package:wepoems_flutter/pages/taglist/tag_poems_list.dart';
-
+import 'package:wepoems_flutter/pages/detail/loading.dart';
+import 'package:wepoems_flutter/pages/detail/error_retry_page.dart';
 enum PoemAuthorType { PoemAuthorBrief, PomeAuthorDetail }
 
 class PoemAuthorView extends StatelessWidget {
@@ -36,6 +37,21 @@ class PoemAuthorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    String iconName = "libai";
+    if (authorInfo != null && authorInfo.pic != null && authorInfo.pic.length > 0) {
+      iconName = authorInfo.pic;
+    }
+
+    String authorCont = "";
+    if (authorInfo != null && authorInfo.cont != null) {
+      authorCont = authorInfo.cont;
+    }
+
+    String authorNameErrorState = "佚名";
+    if (authorInfo != null && authorInfo.nameStr != null) {
+      authorNameErrorState = authorInfo.nameStr;
+    }
     return Container(
       padding: EdgeInsets.only(bottom: 20),
       child: Column(
@@ -50,7 +66,7 @@ class PoemAuthorView extends StatelessWidget {
                 child: Image(
                   fit: BoxFit.fitHeight,
                   image: CachedNetworkImageProvider(
-                      "https://img.gushiwen.org/authorImg/${authorInfo.pic ?? ""}.jpg"),
+                      "https://img.gushiwen.org/authorImg/${iconName}.jpg"),
                   height: 180,
                 ),
                 borderRadius: BorderRadius.all(Radius.circular(126)),
@@ -60,7 +76,7 @@ class PoemAuthorView extends StatelessWidget {
           Offstage(
             offstage: authorInfo == null || authorInfo.cont == null,
             child: Html(
-              data: authorInfo.cont ?? "",
+              data: authorCont,
             ),
           ),
           Offstage(
@@ -79,7 +95,7 @@ class PoemAuthorView extends StatelessWidget {
               height: 200,
               child: Center(
                 child: Text(
-                  authorInfo.nameStr ?? "佚名",
+                  authorNameErrorState,
                   style: TextStyle(color: Colors.black26),
                 ),
               ),

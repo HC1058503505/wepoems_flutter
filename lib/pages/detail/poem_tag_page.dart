@@ -18,7 +18,7 @@ class PoemTagPage extends StatelessWidget {
                 }));
             },
             child: Container(
-              margin: EdgeInsets.fromLTRB(15, 0, 15, 10),
+              margin: EdgeInsets.fromLTRB(15, 10, 15, 10),
               decoration: BoxDecoration(
                   border: Border.all(
                     color: Colors.black26,
