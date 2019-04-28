@@ -6,29 +6,19 @@ import 'package:wepoems_flutter/pages/detail/poem_detail.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:io';
 import 'package:wepoems_flutter/pages/taglist/poems_list_cell.dart';
-
-enum MineCollectionsType {
-  colloections,
-  records
-}
-class MineCollections extends StatefulWidget {
-  MineCollections({this.collectionsType});
-  final MineCollectionsType collectionsType;
-
+class MineRecords extends StatefulWidget {
   @override
-  _MineCollectionsState createState() => _MineCollectionsState();
+  _MineRecordsState createState() => _MineRecordsState();
 }
 
-class _MineCollectionsState extends State<MineCollections> {
+class _MineRecordsState extends State<MineRecords> {
   int _page = 0;
-  List<PoemRecommend> _collections = List<PoemRecommend>();
+  List<PoemRecommend> _records = List<PoemRecommend>();
   ScrollController _scrollController = ScrollController();
-  String _tipStr = "";
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _tipStr = widget.collectionsType == MineCollectionsType.colloections ? "收藏" : "浏览记录";
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
@@ -42,18 +32,18 @@ class _MineCollectionsState extends State<MineCollections> {
   void _getCollections() async {
     PoemRecommendProvider provider = PoemRecommendProvider.singleton;
     await provider.open(DatabasePath);
-    String tableNameStr= widget.collectionsType == MineCollectionsType.colloections ? tableCollection : tableRecords;
-    provider.getPoemRecomsPaging(tableName: tableNameStr, limit: 10, page: _page).then((collectionList) {
+//    await provider.getRecords();
+    provider.getPoemRecomsPaging(tableName: tableRecords, limit: 10, page: _page).then((collectionList) {
       if (collectionList == null) {
         return;
       }
 
       if (_page == 0) {
-        _collections.clear();
+        _records.clear();
       }
 
       setState(() {
-        _collections.addAll(collectionList);
+        _records.addAll(collectionList);
       });
     }).catchError((error) {
       print(error.toString());
@@ -75,13 +65,14 @@ class _MineCollectionsState extends State<MineCollections> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text("我的$_tipStr"),
+        title: Text("浏览记录"),
         actions: <Widget>[
           Offstage(
-            offstage: _collections == null || _collections.length <= 0,
+            offstage: _records == null || _records.length <= 0,
             child: IconButton(
                 icon: Icon(Icons.delete, color: Colors.white),
                 onPressed: () {
@@ -104,7 +95,7 @@ class _MineCollectionsState extends State<MineCollections> {
           gravity: ToastGravity.CENTER);
 
       setState(() {
-        _collections.clear();
+        _records.clear();
       });
     }).catchError((error) {
       Fluttertoast.showToast(
@@ -121,7 +112,7 @@ class _MineCollectionsState extends State<MineCollections> {
           builder: (context) {
             return AlertDialog(
               title: Text("温馨提示"),
-              content: Text("确定清除全部$_tipStr吗？"),
+              content: Text("确定清除全部收浏览记录吗？"),
               actions: <Widget>[
                 FlatButton(
                   onPressed: () {
@@ -152,7 +143,7 @@ class _MineCollectionsState extends State<MineCollections> {
         builder: (context) {
           return CupertinoAlertDialog(
             title: Text("温馨提示"),
-            content: Text("确定清除全部$_tipStr吗？"),
+            content: Text("确定清除全部浏览记录吗？"),
             actions: <Widget>[
               CupertinoDialogAction(
                 child: Text(
@@ -178,11 +169,11 @@ class _MineCollectionsState extends State<MineCollections> {
   }
 
   Widget collectionsListView() {
-    if (_collections == null || _collections.length == 0) {
+    if (_records == null || _records.length == 0) {
       return Container(
         color: Colors.white,
         child: Center(
-          child: Text("您的$_tipStr夹空空如也哦！"),
+          child: Text("您的浏览记录空空如也哦！"),
         ),
       );
     }
@@ -194,33 +185,32 @@ class _MineCollectionsState extends State<MineCollections> {
             itemBuilder: (context, index) {
               return Dismissible(
                 direction: DismissDirection.endToStart,
-                key: Key(_collections[index].idnew),
+                key: Key(_records[index].idnew),
                 child: GestureDetector(
-
-//                  child: PoemCell(poem: _collections[index], showStyle: PoemShowStyle.PoemShowSingleLine,),
-                  child: PoemsListCell(poem: _collections[index], padding: EdgeInsets.fromLTRB(10, 0, 10, 0),),
+//                  child: PoemCell(poem: _records[index], showStyle: PoemShowStyle.PoemShowSingleLine,),
+                  child: PoemsListCell(poem: _records[index], padding: EdgeInsets.fromLTRB(10, 0, 10, 0),),
                   onTap: () {
                     Navigator.of(context)
                         .push(CupertinoPageRoute(builder: (context) {
-                      return PoemDetail(poemRecom: _collections[index]);
+                      return PoemDetail(poemRecom: _records[index]);
                     }));
                   },
                 ),
                 onDismissed: (direction) {
                   PoemRecommendProvider provider =
                       PoemRecommendProvider.singleton;
-                  provider.delete(tableName: tableCollection, id:_collections[index].idnew).then((dynamic) {
+                  provider.delete(tableName: tableCollection, id:_records[index].idnew).then((dynamic) {
                     Fluttertoast.showToast(
-                        msg: "删除$_tipStr成功",
+                        msg: "删除浏览记录成功",
                         toastLength: Toast.LENGTH_SHORT,
                         gravity: ToastGravity.CENTER);
 
                     setState(() {
-                      _collections.removeAt(index);
+                      _records.removeAt(index);
                     });
                   }).catchError((error) {
                     Fluttertoast.showToast(
-                        msg: "删除$_tipStr失败",
+                        msg: "删除浏览记录失败",
                         toastLength: Toast.LENGTH_SHORT,
                         gravity: ToastGravity.CENTER);
                   }).whenComplete(() {});
@@ -228,7 +218,7 @@ class _MineCollectionsState extends State<MineCollections> {
                 background: new Container(color: Colors.red),
               );
             },
-            itemCount: _collections == null ? 0 : _collections.length,
+            itemCount: _records == null ? 0 : _records.length,
           ),
           onRefresh: _onRefresh),
     );

@@ -3,6 +3,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:sqflite/sql.dart';
 
 final String tableCollection = "collections";
+final String tableRecords = "records";
 final String columnId = "_id";
 final String columnIdnew = "idnew"; // 诗词新id
 final String columnNameStr = "nameStr"; // 诗名
@@ -12,6 +13,7 @@ final String columnCont = "cont"; // 诗词内容
 final String columnTag = "tag"; // 标签
 final String columnFrom = "fromType"; // 来源类型
 final String columnCollection = "isCollection";
+final String columnDateTime = "dateTime";
 
 class PoemRecommend {
   String idnew = ""; // 诗词新id
@@ -22,6 +24,7 @@ class PoemRecommend {
   String tag = ""; // 标签
   String from = "poem"; // 来源类型
   bool isCollection = false;
+  String dateTime = "";
   PoemRecommend(
       {this.idnew,
       this.nameStr,
@@ -40,14 +43,11 @@ class PoemRecommend {
         .toString()
         .replaceAll(RegExp("null"), "")
         .replaceAll(RegExp("<(\/)?p>"), "")
+        .replaceAll(RegExp("\n"), "\n\n")
         .replaceAll(RegExp("<br(.*?)>"), "\n\n")
-//        .replaceAll(RegExp("\n"), "<br>")
-//        .replaceAll(RegExp("<br>"), "\n")
-//        .replaceAll(RegExp("<br/>"), "\n")
         .replaceAll(RegExp("[\(|（].*[\)|）]"), "")
         .replaceAll(RegExp("<span.*span>"), "")
         .replaceAll(RegExp("<div class=\'small\'></div>"), "\n\n")
-//        .replaceAll(RegExp("\n\n"), "\n")
         .trim();
     tag = poem["tag"].toString().replaceAll(RegExp("null"), "");
   }
@@ -61,7 +61,8 @@ class PoemRecommend {
       columnCont: cont,
       columnTag: tag,
       columnFrom: from,
-      columnCollection: isCollection
+      columnCollection: isCollection,
+      columnDateTime: dateTime
     };
   }
 
@@ -81,11 +82,11 @@ class PoemRecommend {
     tag = map[columnTag].toString().replaceAll(RegExp("null"), "");
     isCollection = (map[columnCollection] as int == 1);
     from = map[columnFrom].toString().replaceAll(RegExp("null"), "");
+    dateTime = map[columnDateTime].toString().replaceAll(RegExp("null"), "");
   }
 }
 
 final String DatabasePath = "collections.db";
-
 class PoemRecommendProvider {
   Database db;
 
@@ -106,18 +107,38 @@ create table if not exists $tableCollection(
   $columnCont text not null,
   $columnTag text not null,
   $columnFrom text not null,
-  $columnCollection bool not null)
+  $columnCollection bool not null,
+  $columnDateTime text not null)
 ''');
+
+      await db.execute('''
+create table if not exists $tableRecords( 
+  $columnId integer primary key autoincrement, 
+  $columnIdnew text not null unique,
+  $columnNameStr text not null,
+  $columnAuthor text not null,
+  $columnChaodai text not null,
+  $columnCont text not null,
+  $columnTag text not null,
+  $columnFrom text not null,
+  $columnCollection bool not null,
+  $columnDateTime text not null)
+''');
+
     });
   }
 
-  Future<void> insert(PoemRecommend poemRecom) async {
-    poemRecom.from = "collection";
-    return await db.insert(tableCollection, poemRecom.toMap());
+  Future<void> insert({String tableName ,PoemRecommend poemRecom}) async {
+    if (tableName == tableCollection) {
+      poemRecom.from = "collection";
+    }
+    
+    poemRecom.dateTime = DateTime.now().toString();
+    return await db.insert(tableName, poemRecom.toMap());
   }
 
-  Future<PoemRecommend> getPoemRecom(String id) async {
-    List<Map> maps = await db.query(tableCollection,
+  Future<PoemRecommend> getPoemRecom({String tableName, String id}) async {
+    List<Map> maps = await db.query(tableName,
         columns: [
           columnIdnew,
           columnNameStr,
@@ -126,7 +147,8 @@ create table if not exists $tableCollection(
           columnCont,
           columnTag,
           columnFrom,
-          columnCollection
+          columnCollection,
+          columnDateTime
         ],
         where: '$columnIdnew = ?',
         whereArgs: [id]);
@@ -136,8 +158,8 @@ create table if not exists $tableCollection(
     return null;
   }
 
-  Future<List<PoemRecommend>> getPoemRecomsPaging({int limit, int page}) async {
-    List<Map> maps = await db.query(tableCollection,
+  Future<List<PoemRecommend>> getPoemRecomsPaging({String tableName, int limit, int page}) async {
+    List<Map> maps = await db.query(tableName,
         columns: [
           columnIdnew,
           columnNameStr,
@@ -146,7 +168,8 @@ create table if not exists $tableCollection(
           columnCont,
           columnTag,
           columnFrom,
-          columnCollection
+          columnCollection,
+          columnDateTime
         ],
         limit: limit,
         distinct: true,
@@ -162,17 +185,23 @@ create table if not exists $tableCollection(
     return null;
   }
 
-  Future delete(String id) async {
+  Future<dynamic> getRecords() async {
+      List<Map> maps = await db.rawQuery("select * from records group by strftime('%Y-%m-%d', datetime)");
+
+      print(maps);
+  }
+  Future delete({String tableName, String id}) async {
     return await db
-        .delete(tableCollection, where: '$columnIdnew = ?', whereArgs: [id]);
+        .delete(tableName, where: '$columnIdnew = ?', whereArgs: [id]);
   }
 
-  Future deleteAll() async {
-    return await db.delete(tableCollection);
+  Future deleteAll({String tableName}) async {
+    return await db.delete(tableName);
   }
 
-  Future update(PoemRecommend poemRecom) async {
-    return await db.update(tableCollection, poemRecom.toMap(),
+  Future update({String tableName,PoemRecommend poemRecom}) async {
+    poemRecom.dateTime = DateTime.now().toString();
+    return await db.update(tableName, poemRecom.toMap(),
         where: '$columnIdnew = ?', whereArgs: [poemRecom.idnew]);
   }
 

@@ -81,7 +81,7 @@ class _RecommandPageState extends State<RecommandPage> {
               controller: _scrollController,
               itemBuilder: (context, index) {
                 return GestureDetector(
-                  child: PoemCell(poem: _recommandList[index]),
+                  child: PoemCell(poem: _recommandList[index], showStyle: PoemShowStyle.PoemShowMultipleLines,),
                   onTap: () {
                     Navigator.of(context)
                         .push(CupertinoPageRoute(builder: (context) {

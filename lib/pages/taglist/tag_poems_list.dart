@@ -121,7 +121,8 @@ class _PoemsTagListState extends State<PoemsTagList> {
                   itemBuilder: (context, index) {
                     return PoemsListCell(
                         poem: _poemList[index],
-                        padding: EdgeInsets.fromLTRB(10, 0, 10, 0));
+                        padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    );
                   },
                   itemCount: _poemList.length),
               onRefresh: _refresh),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wepoems_flutter/pages/me/mine_collections.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:wepoems_flutter/pages/me/mine_settings.dart';
+import 'package:wepoems_flutter/pages/me/mine_records.dart';
 
 class MePage extends StatefulWidget {
   @override
@@ -28,10 +29,14 @@ class _MePageState extends State<MePage> {
                 case 0:
                   Navigator.of(context)
                       .push(CupertinoPageRoute(builder: (context) {
-                    return MineCollections();
+                    return MineCollections(collectionsType: MineCollectionsType.colloections,);
                   }));
                   break;
                 case 1:
+                  Navigator.of(context)
+                      .push(CupertinoPageRoute(builder: (context) {
+                    return MineRecords();
+                  }));
                   break;
                 case 2:
                   Navigator.of(context)

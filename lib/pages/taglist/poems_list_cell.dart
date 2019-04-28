@@ -18,12 +18,11 @@ class PoemsListCell extends StatelessWidget {
       },
       child: Container(
         color: Colors.white,
-        padding: padding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Padding(
-              padding: EdgeInsets.fromLTRB(0, 15, 0, 10),
+              padding: EdgeInsets.fromLTRB(padding.left, 15, padding.right, 10),
               child: Row(
                 children: <Widget>[
                   Expanded(
@@ -38,7 +37,7 @@ class PoemsListCell extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(bottom: 15),
+              padding: EdgeInsets.fromLTRB(padding.left, 0, padding.right, 15),
               child: Container(
                 width: MediaQuery.of(context).size.width,
                 child: Html(
@@ -48,6 +47,7 @@ class PoemsListCell extends StatelessWidget {
               ),
             ),
             Divider(
+              indent: padding.left,
               height: 0,
               color: Colors.black26,
             )

@@ -69,7 +69,7 @@ class _PoemDetailState extends State<PoemDetail>
       await provider.open(DatabasePath);
     }
     provider
-        .getPoemRecom(widget.poemRecom.idnew)
+        .getPoemRecom(tableName: tableCollection, id: widget.poemRecom.idnew)
         .then((poem) {
           if (poem != null) {
             widget.poemRecom.isCollection = poem.isCollection;
@@ -79,6 +79,7 @@ class _PoemDetailState extends State<PoemDetail>
             widget.poemRecom.cont = poem.cont;
             widget.poemRecom.tag = poem.tag;
             widget.poemRecom.from = "recommend";
+            widget.poemRecom.dateTime = poem.dateTime;
           } else {
             widget.poemRecom.isCollection = false;
           }
@@ -87,6 +88,7 @@ class _PoemDetailState extends State<PoemDetail>
         .whenComplete(() {
           _getPoemDetail();
         });
+
   }
 
   @override
@@ -96,6 +98,23 @@ class _PoemDetailState extends State<PoemDetail>
     _tabController.dispose();
     DioManager.singleton.cancle();
     Fluttertoast.cancel();
+  }
+
+  void _scanRecord() async {
+
+    if (_detailModel == null || widget.poemRecom.idnew.length == 0) {
+      return;
+    }
+    PoemRecommendProvider provider = PoemRecommendProvider.singleton;
+    await provider.open(DatabasePath);
+    provider.getPoemRecom(tableName: tableRecords, id: widget.poemRecom.idnew)
+    .then((poem){
+      if (poem != null) {
+        provider.update(tableName: tableRecords, poemRecom: _detailModel.gushiwen);
+      } else {
+        provider.insert(tableName: tableRecords, poemRecom: _detailModel.gushiwen);
+      }
+    });
   }
 
   void _getPoemDetail() async {
@@ -110,9 +129,14 @@ class _PoemDetailState extends State<PoemDetail>
     DioManager.singleton.post(path: path, data: postData).then((response) {
       setState(() {
         _detailModel = PoemDetailModel.parseJSON(response);
+        if (widget.poemRecom.from == "collection"){
+          _detailModel.gushiwen.from = "collection";
+          _detailModel.gushiwen.isCollection = true;
+        }
       });
 
       _getAuthorMsg();
+      _scanRecord();
     }).catchError((error) {
       if (error is DioError) {
         DioError dioError = error as DioError;
@@ -236,7 +260,7 @@ class _PoemDetailState extends State<PoemDetail>
   IconButton collectionButtonAction() {
     return IconButton(
       icon: Icon(
-          _detailModel != null && _detailModel.gushiwen.isCollection
+          widget.poemRecom.isCollection || (_detailModel != null && _detailModel.gushiwen.isCollection)
               ? Icons.star
               : Icons.star_border,
           color: Colors.white),
@@ -256,43 +280,46 @@ class _PoemDetailState extends State<PoemDetail>
         }
 
         PoemRecommendProvider provider = PoemRecommendProvider.singleton;
-        if (!_detailModel.gushiwen.isCollection) {
-          _collectionEnable = false;
-          _detailModel.gushiwen.isCollection =
-              !_detailModel.gushiwen.isCollection;
-          provider.insert(_detailModel.gushiwen).then((dynamic) {
-            Fluttertoast.showToast(
-                msg: "收藏成功",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.CENTER);
-            setState(() {});
-          }).catchError((error) {
-            Fluttertoast.showToast(
-                msg: "收藏失败",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.CENTER);
-          }).whenComplete(() {
-            _collectionEnable = true;
-          });
-        } else {
-          _collectionEnable = false;
-          _detailModel.gushiwen.isCollection =
-              !_detailModel.gushiwen.isCollection;
-          provider.delete(_detailModel.gushiwen.idnew).then((dynamic) {
-            Fluttertoast.showToast(
-                msg: "取消收藏成功",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.CENTER);
-            setState(() {});
-          }).catchError((error) {
-            Fluttertoast.showToast(
-                msg: "取消收藏失败",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.CENTER);
-          }).whenComplete(() {
-            _collectionEnable = true;
-          });
-        }
+        provider.open(DatabasePath).then((dyanmic){
+          if (!_detailModel.gushiwen.isCollection) {
+            _collectionEnable = false;
+            _detailModel.gushiwen.isCollection =
+            !_detailModel.gushiwen.isCollection;
+            provider.insert(tableName: tableCollection, poemRecom: _detailModel.gushiwen).then((dynamic) {
+              Fluttertoast.showToast(
+                  msg: "收藏成功",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.CENTER);
+              setState(() {});
+            }).catchError((error) {
+              Fluttertoast.showToast(
+                  msg: "收藏失败",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.CENTER);
+            }).whenComplete(() {
+              _collectionEnable = true;
+            });
+          } else {
+            _collectionEnable = false;
+            _detailModel.gushiwen.isCollection =
+            !_detailModel.gushiwen.isCollection;
+            provider.delete(tableName: tableCollection, id: _detailModel.gushiwen.idnew).then((dynamic) {
+              Fluttertoast.showToast(
+                  msg: "取消收藏成功",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.CENTER);
+              setState(() {});
+            }).catchError((error) {
+              Fluttertoast.showToast(
+                  msg: "取消收藏失败",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.CENTER);
+            }).whenComplete(() {
+              _collectionEnable = true;
+            });
+          }
+        });
+
       },
     );
   }
