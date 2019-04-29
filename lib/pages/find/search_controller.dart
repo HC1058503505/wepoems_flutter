@@ -8,7 +8,7 @@ import 'package:wepoems_flutter/pages/detail/poem_search_author.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:io';
 import 'package:flustars/flustars.dart';
-
+import 'package:dio/dio.dart';
 final String keySearchStory = "keySearchStory";
 
 class SearchController extends StatefulWidget {
@@ -37,42 +37,53 @@ class _SearchControllerState extends State<SearchController> {
 
   void _getSearchResult() async {
     var postDS = {"token": "gswapi", "valuekey": _editingController.text};
-    var response = await DioManager.singleton
-        .post(path: "/api/ajaxSearch3.aspx", data: postDS);
-    List<dynamic> gushiwens = response["gushiwens"] as List<dynamic>;
-    List<dynamic> mingjus = response["mingjus"] as List<dynamic>;
-    List<dynamic> authors = response["authors"] as List<dynamic>;
+    DioManager.singleton
+        .post(path: "/api/ajaxSearch3.aspx", data: postDS)
+        .then((response){
+      List<dynamic> gushiwens = response["gushiwens"] as List<dynamic>;
+      List<dynamic> mingjus = response["mingjus"] as List<dynamic>;
+      List<dynamic> authors = response["authors"] as List<dynamic>;
 
-    List<PoemRecommend> gushiwenList = gushiwens.map<PoemRecommend>((item) {
-      return PoemRecommend.parseJSON(item);
-    }).toList();
+      List<PoemRecommend> gushiwenList = gushiwens.map<PoemRecommend>((item) {
+        return PoemRecommend.parseJSON(item);
+      }).toList();
 
-    List<PoemRecommend> mingjuList = mingjus.map<PoemRecommend>((item) {
-      return PoemRecommend.parseJSON(item);
-    }).toList();
+      List<PoemRecommend> mingjuList = mingjus.map<PoemRecommend>((item) {
+        return PoemRecommend.parseJSON(item);
+      }).toList();
 
-    List<PoemRecommend> authorList = authors.map<PoemRecommend>((item) {
-      return PoemRecommend.parseJSON(item);
-    }).toList();
+      List<PoemRecommend> authorList = authors.map<PoemRecommend>((item) {
+        return PoemRecommend.parseJSON(item);
+      }).toList();
 
-    setState(() {
-      if (gushiwenList.length > 0) {
-        _searchResult
-            .add({"title": "诗文", "type": "poem", "results": gushiwenList});
+      setState(() {
+        if (gushiwenList.length > 0) {
+          _searchResult
+              .add({"title": "诗文", "type": "poem", "results": gushiwenList});
+        }
+
+        if (mingjuList.length > 0) {
+          _searchResult
+              .add({"title": "名句", "type": "mingju", "results": mingjuList});
+        }
+
+        if (authorList.length > 0) {
+          _searchResult
+              .add({"title": "诗人", "type": "author", "results": authorList});
+        }
+
+        _isEmpty = _searchResult.length == 0;
+      });
+    })
+    .catchError((error){
+      if (error is DioError) {
+        var dioError = error as DioError;
+        if (dioError.type == DioErrorType.CONNECT_TIMEOUT) {
+          Fluttertoast.showToast(msg: "网络超时，请检查网络！", gravity: ToastGravity.CENTER,);
+        }
       }
-
-      if (mingjuList.length > 0) {
-        _searchResult
-            .add({"title": "名句", "type": "mingju", "results": mingjuList});
-      }
-
-      if (authorList.length > 0) {
-        _searchResult
-            .add({"title": "诗人", "type": "author", "results": authorList});
-      }
-
-      _isEmpty = _searchResult.length == 0;
     });
+
   }
 
   Future unfocusKeyboard() async {
@@ -235,7 +246,12 @@ class _SearchControllerState extends State<SearchController> {
                       padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                       child: FlatButton(
                         color: Colors.black12,
-                        onPressed: () {},
+                        onPressed: () {
+                          _editingController.text = item;
+                          _focusNode.unfocus();
+                          _searchResult.clear();
+                          _getSearchResult();
+                        },
                         child: Text(
                           item,
                           style: TextStyle(color: Colors.black54),
