@@ -26,7 +26,10 @@ class PoemAuthor {
 
   PoemAuthor.parseJSON(Map<String, dynamic> author) {
     chaodai = author["chaodai"].toString().replaceAll(RegExp("null"), "");
-    cont = author["cont"].toString().replaceAll(RegExp("null"), "");
+    cont = author["cont"]
+        .toString()
+        .replaceAll(RegExp("null"), "")
+        .replaceAll(RegExp("<(.*?)p>"), "");
     creTime = author["creTime"].toString().replaceAll(RegExp("null"), "");
     id = author["id"] as int;
     idnew = author["idnew"].toString().replaceAll(RegExp("null"), "");

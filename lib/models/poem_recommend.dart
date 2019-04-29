@@ -87,6 +87,7 @@ class PoemRecommend {
 }
 
 final String DatabasePath = "collections.db";
+
 class PoemRecommendProvider {
   Database db;
 
@@ -124,15 +125,14 @@ create table if not exists $tableRecords(
   $columnCollection bool not null,
   $columnDateTime text not null)
 ''');
-
     });
   }
 
-  Future<void> insert({String tableName ,PoemRecommend poemRecom}) async {
+  Future<void> insert({String tableName, PoemRecommend poemRecom}) async {
     if (tableName == tableCollection) {
       poemRecom.from = "collection";
     }
-    
+
     poemRecom.dateTime = DateTime.now().toString();
     return await db.insert(tableName, poemRecom.toMap());
   }
@@ -158,7 +158,8 @@ create table if not exists $tableRecords(
     return null;
   }
 
-  Future<List<PoemRecommend>> getPoemRecomsPaging({String tableName, int limit, int page}) async {
+  Future<List<PoemRecommend>> getPoemRecomsPaging(
+      {String tableName, int limit, int page}) async {
     List<Map> maps = await db.query(tableName,
         columns: [
           columnIdnew,
@@ -173,7 +174,7 @@ create table if not exists $tableRecords(
         ],
         limit: limit,
         distinct: true,
-        orderBy: columnId + " DESC",
+        orderBy: columnDateTime + " DESC",
         offset: page * limit);
 
     if (maps.length > 0) {
@@ -186,10 +187,12 @@ create table if not exists $tableRecords(
   }
 
   Future<dynamic> getRecords() async {
-      List<Map> maps = await db.rawQuery("select * from records group by strftime('%Y-%m-%d', datetime)");
+    List<Map> maps = await db.rawQuery(
+        "select * from records group by strftime('%Y-%m-%d', datetime)");
 
-      print(maps);
+    print(maps);
   }
+
   Future delete({String tableName, String id}) async {
     return await db
         .delete(tableName, where: '$columnIdnew = ?', whereArgs: [id]);
@@ -199,7 +202,7 @@ create table if not exists $tableRecords(
     return await db.delete(tableName);
   }
 
-  Future update({String tableName,PoemRecommend poemRecom}) async {
+  Future update({String tableName, PoemRecommend poemRecom}) async {
     poemRecom.dateTime = DateTime.now().toString();
     return await db.update(tableName, poemRecom.toMap(),
         where: '$columnIdnew = ?', whereArgs: [poemRecom.idnew]);

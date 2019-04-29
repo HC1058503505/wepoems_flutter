@@ -5,14 +5,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_html/flutter_html.dart';
 
 class PoemsListCell extends StatelessWidget {
-  PoemsListCell({this.poem, this.padding});
+  PoemsListCell({this.poem, this.padding, this.pushContext});
   final PoemRecommend poem;
   final EdgeInsets padding;
+  final BuildContext pushContext;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).push(CupertinoPageRoute(builder: (context) {
+        Navigator.of(pushContext).push(CupertinoPageRoute(builder: (context) {
           return PoemDetail(poemRecom: poem);
         }));
       },

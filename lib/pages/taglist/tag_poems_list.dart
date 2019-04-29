@@ -120,8 +120,9 @@ class _PoemsTagListState extends State<PoemsTagList> {
                   controller: _scrollController,
                   itemBuilder: (context, index) {
                     return PoemsListCell(
-                        poem: _poemList[index],
-                        padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      poem: _poemList[index],
+                      padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      pushContext: context,
                     );
                   },
                   itemCount: _poemList.length),

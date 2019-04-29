@@ -88,7 +88,6 @@ class _PoemDetailState extends State<PoemDetail>
         .whenComplete(() {
           _getPoemDetail();
         });
-
   }
 
   @override
@@ -101,18 +100,20 @@ class _PoemDetailState extends State<PoemDetail>
   }
 
   void _scanRecord() async {
-
     if (_detailModel == null || widget.poemRecom.idnew.length == 0) {
       return;
     }
     PoemRecommendProvider provider = PoemRecommendProvider.singleton;
     await provider.open(DatabasePath);
-    provider.getPoemRecom(tableName: tableRecords, id: widget.poemRecom.idnew)
-    .then((poem){
+    provider
+        .getPoemRecom(tableName: tableRecords, id: widget.poemRecom.idnew)
+        .then((poem) {
       if (poem != null) {
-        provider.update(tableName: tableRecords, poemRecom: _detailModel.gushiwen);
+        provider.update(
+            tableName: tableRecords, poemRecom: _detailModel.gushiwen);
       } else {
-        provider.insert(tableName: tableRecords, poemRecom: _detailModel.gushiwen);
+        provider.insert(
+            tableName: tableRecords, poemRecom: _detailModel.gushiwen);
       }
     });
   }
@@ -129,7 +130,7 @@ class _PoemDetailState extends State<PoemDetail>
     DioManager.singleton.post(path: path, data: postData).then((response) {
       setState(() {
         _detailModel = PoemDetailModel.parseJSON(response);
-        if (widget.poemRecom.from == "collection"){
+        if (widget.poemRecom.from == "collection") {
           _detailModel.gushiwen.from = "collection";
           _detailModel.gushiwen.isCollection = true;
         }
@@ -260,7 +261,8 @@ class _PoemDetailState extends State<PoemDetail>
   IconButton collectionButtonAction() {
     return IconButton(
       icon: Icon(
-          widget.poemRecom.isCollection || (_detailModel != null && _detailModel.gushiwen.isCollection)
+          widget.poemRecom.isCollection ||
+                  (_detailModel != null && _detailModel.gushiwen.isCollection)
               ? Icons.star
               : Icons.star_border,
           color: Colors.white),
@@ -280,12 +282,16 @@ class _PoemDetailState extends State<PoemDetail>
         }
 
         PoemRecommendProvider provider = PoemRecommendProvider.singleton;
-        provider.open(DatabasePath).then((dyanmic){
+        provider.open(DatabasePath).then((dyanmic) {
           if (!_detailModel.gushiwen.isCollection) {
             _collectionEnable = false;
             _detailModel.gushiwen.isCollection =
-            !_detailModel.gushiwen.isCollection;
-            provider.insert(tableName: tableCollection, poemRecom: _detailModel.gushiwen).then((dynamic) {
+                !_detailModel.gushiwen.isCollection;
+            provider
+                .insert(
+                    tableName: tableCollection,
+                    poemRecom: _detailModel.gushiwen)
+                .then((dynamic) {
               Fluttertoast.showToast(
                   msg: "收藏成功",
                   toastLength: Toast.LENGTH_SHORT,
@@ -302,8 +308,11 @@ class _PoemDetailState extends State<PoemDetail>
           } else {
             _collectionEnable = false;
             _detailModel.gushiwen.isCollection =
-            !_detailModel.gushiwen.isCollection;
-            provider.delete(tableName: tableCollection, id: _detailModel.gushiwen.idnew).then((dynamic) {
+                !_detailModel.gushiwen.isCollection;
+            provider
+                .delete(
+                    tableName: tableCollection, id: _detailModel.gushiwen.idnew)
+                .then((dynamic) {
               Fluttertoast.showToast(
                   msg: "取消收藏成功",
                   toastLength: Toast.LENGTH_SHORT,
@@ -319,7 +328,6 @@ class _PoemDetailState extends State<PoemDetail>
             });
           }
         });
-
       },
     );
   }
@@ -358,7 +366,10 @@ class _PoemDetailState extends State<PoemDetail>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           PoemCell(poem: source),
-          PoemTagPage(tagStr: source.tag)
+          PoemTagPage(
+            tagStr: source.tag,
+            pushContext: context,
+          )
         ],
       ),
     );
@@ -433,6 +444,7 @@ class _PoemDetailState extends State<PoemDetail>
             poemRecoms: _poemRecoms,
             analyzes: _analyzes,
             authorInfo: _authorInfo,
+            pushContext: context,
           );
         }
         return _authorView;

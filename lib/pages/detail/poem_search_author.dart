@@ -64,6 +64,13 @@ class _PoemSearchAuthorState extends State<PoemSearchAuthor> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    DioManager.singleton.cancle();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -89,6 +96,7 @@ class _PoemSearchAuthorState extends State<PoemSearchAuthor> {
                             poemRecoms: _poemRecoms,
                             analyzes: _analyzes,
                             authorInfo: _authorInfo,
+                            pushContext: context,
                           ),
                         );
                       },

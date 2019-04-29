@@ -7,10 +7,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:io';
 import 'package:wepoems_flutter/pages/taglist/poems_list_cell.dart';
 
-enum MineCollectionsType {
-  colloections,
-  records
-}
+enum MineCollectionsType { colloections, records }
+
 class MineCollections extends StatefulWidget {
   MineCollections({this.collectionsType});
   final MineCollectionsType collectionsType;
@@ -28,7 +26,9 @@ class _MineCollectionsState extends State<MineCollections> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _tipStr = widget.collectionsType == MineCollectionsType.colloections ? "收藏" : "浏览记录";
+    _tipStr = widget.collectionsType == MineCollectionsType.colloections
+        ? "收藏"
+        : "浏览记录";
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
@@ -42,8 +42,13 @@ class _MineCollectionsState extends State<MineCollections> {
   void _getCollections() async {
     PoemRecommendProvider provider = PoemRecommendProvider.singleton;
     await provider.open(DatabasePath);
-    String tableNameStr= widget.collectionsType == MineCollectionsType.colloections ? tableCollection : tableRecords;
-    provider.getPoemRecomsPaging(tableName: tableNameStr, limit: 10, page: _page).then((collectionList) {
+    String tableNameStr =
+        widget.collectionsType == MineCollectionsType.colloections
+            ? tableCollection
+            : tableRecords;
+    provider
+        .getPoemRecomsPaging(tableName: tableNameStr, limit: 10, page: _page)
+        .then((collectionList) {
       if (collectionList == null) {
         return;
       }
@@ -196,9 +201,12 @@ class _MineCollectionsState extends State<MineCollections> {
                 direction: DismissDirection.endToStart,
                 key: Key(_collections[index].idnew),
                 child: GestureDetector(
-
 //                  child: PoemCell(poem: _collections[index], showStyle: PoemShowStyle.PoemShowSingleLine,),
-                  child: PoemsListCell(poem: _collections[index], padding: EdgeInsets.fromLTRB(10, 0, 10, 0),),
+                  child: PoemsListCell(
+                    poem: _collections[index],
+                    padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    pushContext: context,
+                  ),
                   onTap: () {
                     Navigator.of(context)
                         .push(CupertinoPageRoute(builder: (context) {
@@ -209,7 +217,11 @@ class _MineCollectionsState extends State<MineCollections> {
                 onDismissed: (direction) {
                   PoemRecommendProvider provider =
                       PoemRecommendProvider.singleton;
-                  provider.delete(tableName: tableCollection, id:_collections[index].idnew).then((dynamic) {
+                  provider
+                      .delete(
+                          tableName: tableCollection,
+                          id: _collections[index].idnew)
+                      .then((dynamic) {
                     Fluttertoast.showToast(
                         msg: "删除$_tipStr成功",
                         toastLength: Toast.LENGTH_SHORT,

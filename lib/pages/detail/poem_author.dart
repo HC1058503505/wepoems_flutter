@@ -9,57 +9,74 @@ import 'package:wepoems_flutter/pages/taglist/poems_list_cell.dart';
 import 'package:wepoems_flutter/pages/taglist/tag_poems_list.dart';
 import 'package:wepoems_flutter/pages/detail/loading.dart';
 import 'package:wepoems_flutter/pages/detail/error_retry_page.dart';
+import 'package:flutter/gestures.dart';
+import 'package:wepoems_flutter/pages/detail/poem_search_author.dart';
+
 enum PoemAuthorType { PoemAuthorBrief, PomeAuthorDetail }
 
-class PoemAuthorView extends StatelessWidget {
-  PoemAuthorView({this.poemRecoms, this.analyzes, this.authorInfo});
+class PoemAuthorView extends StatefulWidget {
+  PoemAuthorView(
+      {this.poemRecoms, this.analyzes, this.authorInfo, this.pushContext});
   final List<PoemRecommend> poemRecoms;
   final List<PoemAnalyze> analyzes;
   final PoemAuthor authorInfo;
-//  @override
-//  _PoemAuthorViewState createState() => _PoemAuthorViewState();
-//}
-//
-//class _PoemAuthorViewState extends State<PoemAuthorView> {
+  final BuildContext pushContext;
+  @override
+  _PoemAuthorViewState createState() => _PoemAuthorViewState();
+}
 
-//  @override
-//  void initState() {
-//    // TODO: implement initState
-//    super.initState();
-//  }
+class _PoemAuthorViewState extends State<PoemAuthorView> {
+  final TapGestureRecognizer _recognizer = TapGestureRecognizer();
 
-//  @override
-//  void dispose() {
-//    // TODO: implement dispose
-//    super.dispose();
-//    DioManager.singleton.cancle();
-//  }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _recognizer.onTap = () {
+      Navigator.of(widget.pushContext)
+          .push(CupertinoPageRoute(builder: (context) {
+        return PoemSearchAuthor(
+            author: PoemAuthor(
+                idnew: widget.authorInfo.idnew,
+                nameStr: widget.authorInfo.nameStr));
+      }));
+    };
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    DioManager.singleton.cancle();
+    _recognizer.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-
     String iconName = "libai";
-    if (authorInfo != null && authorInfo.pic != null && authorInfo.pic.length > 0) {
-      iconName = authorInfo.pic;
+    if (widget.authorInfo != null &&
+        widget.authorInfo.pic != null &&
+        widget.authorInfo.pic.length > 0) {
+      iconName = widget.authorInfo.pic;
     }
 
     String authorCont = "";
-    if (authorInfo != null && authorInfo.cont != null) {
-      authorCont = authorInfo.cont;
+    if (widget.authorInfo != null && widget.authorInfo.cont != null) {
+      authorCont = widget.authorInfo.cont;
     }
 
     String authorNameErrorState = "佚名";
-    if (authorInfo != null && authorInfo.nameStr != null) {
-      authorNameErrorState = authorInfo.nameStr;
+    if (widget.authorInfo != null && widget.authorInfo.nameStr != null) {
+      authorNameErrorState = widget.authorInfo.nameStr;
     }
     return Container(
       padding: EdgeInsets.only(bottom: 20),
       child: Column(
         children: <Widget>[
           Offstage(
-            offstage: authorInfo == null ||
-                authorInfo.pic == null ||
-                authorInfo.pic.length == 0,
+            offstage: widget.authorInfo == null ||
+                widget.authorInfo.pic == null ||
+                widget.authorInfo.pic.length == 0,
             child: Padding(
               padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
               child: ClipRRect(
@@ -74,23 +91,41 @@ class PoemAuthorView extends StatelessWidget {
             ),
           ),
           Offstage(
-            offstage: authorInfo == null || authorInfo.cont == null,
-            child: Html(
-              data: authorCont,
+            offstage:
+                widget.authorInfo == null || widget.authorInfo.cont == null,
+            child: RichText(
+              text: TextSpan(
+                text: authorCont,
+                style: DefaultTextStyle.of(context).style,
+                children:
+                    (widget.analyzes.length == 0 || widget.analyzes == null)
+                        ? [
+                            TextSpan(
+                              text: "查看更多详情>>",
+                              style: TextStyle(
+                                color: Theme.of(context).primaryColor,
+                                decoration: TextDecoration.underline,
+                              ),
+                              recognizer: _recognizer,
+                            ),
+                          ]
+                        : [],
+              ),
             ),
           ),
           Offstage(
-            offstage: poemRecoms == null || poemRecoms.length == 0,
-            child: poemRecomView(context),
+            offstage:
+                widget.poemRecoms == null || widget.poemRecoms.length == 0,
+            child: poemRecomView(),
           ),
           Offstage(
-            offstage: analyzes == null || analyzes.length == 0,
+            offstage: widget.analyzes == null || widget.analyzes.length == 0,
             child: analyzesView(),
           ),
           Offstage(
-            offstage: authorInfo != null &&
-                authorInfo.idnew != null &&
-                authorInfo.idnew.length > 0,
+            offstage: widget.authorInfo != null &&
+                widget.authorInfo.idnew != null &&
+                widget.authorInfo.idnew.length > 0,
             child: Container(
               height: 200,
               child: Center(
@@ -106,21 +141,26 @@ class PoemAuthorView extends StatelessWidget {
     );
   }
 
-  Widget poemRecomView(BuildContext context) {
-    List<Widget> poemWidgets = poemRecoms.map<Widget>((poem) {
-      return PoemsListCell(poem: poem, padding: EdgeInsets.all(0));
+  Widget poemRecomView() {
+    List<Widget> poemWidgets = widget.poemRecoms.map<Widget>((poem) {
+      return PoemsListCell(
+        poem: poem,
+        padding: EdgeInsets.all(0),
+        pushContext: widget.pushContext,
+      );
     }).toList();
 
     var faltBtn = FlatButton(
         child: Text(
-          "查看更多>>",
+          "查看更多作品>>",
           style: TextStyle(color: Theme.of(context).primaryColor),
         ),
         onPressed: () {
-          Navigator.of(context).push(CupertinoPageRoute(builder: (context) {
+          Navigator.of(widget.pushContext)
+              .push(CupertinoPageRoute(builder: (context) {
             return PoemsTagList(
               tagType: TagType.Author,
-              tagStr: authorInfo.nameStr,
+              tagStr: widget.authorInfo.nameStr,
             );
           }));
         });
@@ -152,7 +192,7 @@ class PoemAuthorView extends StatelessWidget {
   }
 
   Widget analyzesView() {
-    List<Widget> analyzeWidgets = analyzes.map<Widget>((analyze) {
+    List<Widget> analyzeWidgets = widget.analyzes.map<Widget>((analyze) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[

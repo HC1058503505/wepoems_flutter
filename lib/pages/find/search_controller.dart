@@ -7,6 +7,9 @@ import 'package:wepoems_flutter/models/poem_detail_model.dart';
 import 'package:wepoems_flutter/pages/detail/poem_search_author.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:io';
+import 'package:flustars/flustars.dart';
+
+final String keySearchStory = "keySearchStory";
 
 class SearchController extends StatefulWidget {
   @override
@@ -117,52 +120,139 @@ class _SearchControllerState extends State<SearchController> {
   }
 
   Widget _searchView() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-      decoration: BoxDecoration(
-          border: Border.all(
-              color: Colors.black26, width: 1, style: BorderStyle.solid),
-          borderRadius: BorderRadius.all(Radius.circular(10))),
-      margin: EdgeInsets.all(20),
-      child: TextField(
-        focusNode: _focusNode,
-        cursorColor: Theme.of(context).primaryColor,
-        controller: _editingController,
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          icon: Icon(Icons.search),
-          labelText: "请输入关键字",
-          labelStyle: TextStyle(color: Colors.black26),
-        ),
-        textInputAction: TextInputAction.done,
-        onEditingComplete: () {
-          if (_focusNode.hasFocus && _editingController.text.length > 0) {
-            _focusNode.unfocus();
-          }
-        },
-        onChanged: (searchContent) {
-          if (searchContent.length == 0) {
-            setState(() {
-              _isEmpty = false;
-              _searchResult.clear();
-            });
-          }
-        },
-        onSubmitted: (searchContent) {
-          if (searchContent.length == 0) {
-            Fluttertoast.cancel();
-            Fluttertoast.showToast(
-              msg: "请输入关键字",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.CENTER,
-            );
-            return;
-          }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Container(
+          padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+          decoration: BoxDecoration(
+              border: Border.all(
+                  color: Colors.black26, width: 1, style: BorderStyle.solid),
+              borderRadius: BorderRadius.all(Radius.circular(10))),
+          margin: EdgeInsets.all(20),
+          child: TextField(
+            focusNode: _focusNode,
+            cursorColor: Theme.of(context).primaryColor,
+            controller: _editingController,
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              icon: Icon(Icons.search),
+              labelText: "请输入关键字",
+              labelStyle: TextStyle(color: Colors.black26),
+            ),
+            textInputAction: TextInputAction.done,
+            onEditingComplete: () {
+              if (_focusNode.hasFocus && _editingController.text.length > 0) {
+                _focusNode.unfocus();
+              }
+            },
+            onChanged: (searchContent) {
+              if (searchContent.length == 0) {
+                setState(() {
+                  _isEmpty = false;
+                  _searchResult.clear();
+                });
+              }
+            },
+            onSubmitted: (searchContent) {
+              if (searchContent.length == 0) {
+                Fluttertoast.cancel();
+                Fluttertoast.showToast(
+                  msg: "请输入关键字",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.CENTER,
+                );
+                return;
+              }
 
-          _searchResult.clear();
-          _getSearchResult();
-        },
-      ),
+              List<String> searchKeys =
+                  SpUtil.getStringList(keySearchStory, defValue: <String>[]);
+              searchKeys.removeWhere((item) {
+                return item == _editingController.text;
+              });
+              searchKeys.insert(0, _editingController.text);
+              if (searchKeys.length > 10) {
+                searchKeys = searchKeys.sublist(0, 10);
+              }
+              SpUtil.putStringList(keySearchStory, searchKeys);
+
+              _searchResult.clear();
+              _getSearchResult();
+            },
+          ),
+        ),
+        Offstage(
+          offstage: _editingController.text.length != 0 ||
+              (SpUtil.getStringList(keySearchStory, defValue: <String>[])
+                      .length ==
+                  0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(left: 20),
+                    child: Text(
+                      "历史搜索",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
+                    child: InkWell(
+                      splashColor: Colors.white,
+                      highlightColor: Colors.white,
+                      child: Icon(
+                        Icons.delete_outline,
+                        color: Colors.black26,
+                      ),
+                      onTap: () {
+                        SpUtil.remove(keySearchStory).then((success) {
+                          if (success) {
+                            setState(() {});
+                          }
+                        });
+                      },
+                    ),
+                  )
+                ],
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                child: Wrap(
+                  runSpacing: 10,
+                  crossAxisAlignment: WrapCrossAlignment.start,
+                  children:
+                      SpUtil.getStringList(keySearchStory, defValue: <String>[])
+                          .map<Widget>((item) {
+                    return Container(
+                      height: 30,
+                      padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      child: FlatButton(
+                        color: Colors.black12,
+                        onPressed: () {},
+                        child: Text(
+                          item,
+                          style: TextStyle(color: Colors.black54),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(15)),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              )
+            ],
+          ),
+        )
+      ],
     );
   }
 

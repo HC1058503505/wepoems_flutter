@@ -6,6 +6,7 @@ import 'package:wepoems_flutter/pages/detail/poem_detail.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:io';
 import 'package:wepoems_flutter/pages/taglist/poems_list_cell.dart';
+
 class MineRecords extends StatefulWidget {
   @override
   _MineRecordsState createState() => _MineRecordsState();
@@ -33,7 +34,9 @@ class _MineRecordsState extends State<MineRecords> {
     PoemRecommendProvider provider = PoemRecommendProvider.singleton;
     await provider.open(DatabasePath);
 //    await provider.getRecords();
-    provider.getPoemRecomsPaging(tableName: tableRecords, limit: 10, page: _page).then((collectionList) {
+    provider
+        .getPoemRecomsPaging(tableName: tableRecords, limit: 10, page: _page)
+        .then((collectionList) {
       if (collectionList == null) {
         return;
       }
@@ -65,7 +68,6 @@ class _MineRecordsState extends State<MineRecords> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -188,7 +190,11 @@ class _MineRecordsState extends State<MineRecords> {
                 key: Key(_records[index].idnew),
                 child: GestureDetector(
 //                  child: PoemCell(poem: _records[index], showStyle: PoemShowStyle.PoemShowSingleLine,),
-                  child: PoemsListCell(poem: _records[index], padding: EdgeInsets.fromLTRB(10, 0, 10, 0),),
+                  child: PoemsListCell(
+                    poem: _records[index],
+                    padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    pushContext: context,
+                  ),
                   onTap: () {
                     Navigator.of(context)
                         .push(CupertinoPageRoute(builder: (context) {
@@ -199,7 +205,10 @@ class _MineRecordsState extends State<MineRecords> {
                 onDismissed: (direction) {
                   PoemRecommendProvider provider =
                       PoemRecommendProvider.singleton;
-                  provider.delete(tableName: tableCollection, id:_records[index].idnew).then((dynamic) {
+                  provider
+                      .delete(
+                          tableName: tableCollection, id: _records[index].idnew)
+                      .then((dynamic) {
                     Fluttertoast.showToast(
                         msg: "删除浏览记录成功",
                         toastLength: Toast.LENGTH_SHORT,
