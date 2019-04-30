@@ -196,7 +196,7 @@ class _MineCollectionsState extends State<MineCollections> {
       child: RefreshIndicator(
           child: ListView.builder(
             controller: _scrollController,
-            itemBuilder: (context, index) {
+            itemBuilder: (contextList, index) {
               return Dismissible(
                 direction: DismissDirection.endToStart,
                 key: Key(_collections[index].idnew),
