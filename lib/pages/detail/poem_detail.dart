@@ -151,7 +151,6 @@ class _PoemDetailState extends State<PoemDetail>
 
       if (error is FlutterError) {
         FlutterError flutterError = error as FlutterError;
-        print("poem_detail.dart:  ${flutterError.message}");
       }
     }).whenComplete(() {
       setState(() {

@@ -17,7 +17,7 @@ class RetryPage extends StatelessWidget {
             child: Text(
               "点击重试",
               style: TextStyle(
-                  color: Colors.black,
+                  color: Colors.grey,
                   fontSize: 20,
                   decoration: TextDecoration.none,
                   fontWeight: FontWeight.normal),
