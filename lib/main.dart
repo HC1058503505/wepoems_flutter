@@ -5,7 +5,8 @@ import 'package:wepoems_flutter/tools/bus_event.dart';
 import 'package:wepoems_flutter/models/strings.dart';
 import 'package:flustars/flustars.dart';
 import 'package:wepoems_flutter/models/colors.dart';
-
+import 'package:wepoems_flutter/pages/ad/ad_page.dart';
+import 'package:wepoems_flutter/pages/ad/ad_page.dart';
 void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {
@@ -15,7 +16,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   Color _themeColor;
-
+  bool _hideAd = false;
   @override
   void initState() {
     SpUtil.getInstance().then((value) {
@@ -51,7 +52,19 @@ class _MyAppState extends State<MyApp> {
         accentColor: _themeColor,
         indicatorColor: Colors.white,
       ),
-      home: RootPage(title: '古诗文斋'),
+      home: Stack(
+        children: <Widget>[
+          RootPage(title: '古诗文斋'),
+          Offstage(
+            offstage: _hideAd,
+            child: ADPage((finished) {
+                setState(() {
+                  _hideAd = finished;
+                });
+            }),
+          )
+        ],
+      ),
     );
   }
 
