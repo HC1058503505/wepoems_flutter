@@ -89,7 +89,7 @@ class _MineRecordsState extends State<MineRecords> {
 
   void sureClear() {
     PoemRecommendProvider provider = PoemRecommendProvider.singleton;
-    provider.deleteAll().then((dynamic) {
+    provider.deleteAll(tableName: tableRecords).then((dynamic) {
       Navigator.of(context).pop();
       Fluttertoast.showToast(
           msg: "清除成功",

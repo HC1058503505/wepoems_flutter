@@ -101,7 +101,7 @@ class _MineCollectionsState extends State<MineCollections> {
 
   void sureClear() {
     PoemRecommendProvider provider = PoemRecommendProvider.singleton;
-    provider.deleteAll().then((dynamic) {
+    provider.deleteAll(tableName: tableCollection).then((dynamic) {
       Navigator.of(context).pop();
       Fluttertoast.showToast(
           msg: "清除成功",
