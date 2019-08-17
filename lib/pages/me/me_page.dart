@@ -19,6 +19,7 @@ class _MePageState extends State<MePage> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: EdgeInsets.fromLTRB(MediaQuery.of(context).padding.left, 0, MediaQuery.of(context).padding.right, MediaQuery.of(context).padding.bottom),
       color: Colors.black.withAlpha(5),
       child: ListView.separated(
         padding: EdgeInsets.only(top: 20),

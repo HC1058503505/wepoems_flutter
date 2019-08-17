@@ -10,7 +10,7 @@ import 'package:wepoems_flutter/pages/detail/poem_anlyze_page.dart';
 import 'package:wepoems_flutter/pages/detail/poem_author.dart';
 import 'dart:math' as math;
 import 'package:wepoems_flutter/pages/detail/poem_tag_page.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:oktoast/oktoast.dart';
 import 'dart:ui';
 import 'dart:core';
 import 'dart:io';
@@ -96,7 +96,7 @@ class _PoemDetailState extends State<PoemDetail>
     super.dispose();
     _tabController.dispose();
     DioManager.singleton.cancle();
-    Fluttertoast.cancel();
+    dismissAllToast();
   }
 
   void _scanRecord() async {
@@ -142,10 +142,7 @@ class _PoemDetailState extends State<PoemDetail>
       if (error is DioError) {
         DioError dioError = error as DioError;
         if (dioError.type == DioErrorType.CONNECT_TIMEOUT) {
-          Fluttertoast.showToast(
-              msg: "网络连接超时，请检查网络",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.CENTER);
+          showToast("网络连接超时，请检查网络", position: ToastPosition.center);
         }
       }
 
@@ -214,6 +211,7 @@ class _PoemDetailState extends State<PoemDetail>
             body: Offstage(
               offstage: _detailModel == null,
               child: Container(
+                padding: EdgeInsets.fromLTRB(MediaQuery.of(context).padding.left, 0, MediaQuery.of(context).padding.right, MediaQuery.of(context).padding.bottom),
                 color: Colors.white,
                 child: CustomScrollView(
                   slivers: <Widget>[
@@ -266,17 +264,14 @@ class _PoemDetailState extends State<PoemDetail>
               : Icons.star_border,
           color: Colors.white),
       onPressed: () {
-        Fluttertoast.cancel();
+        dismissAllToast();
 
         if (_detailModel == null || widget.poemRecom.idnew.length == 0) {
           return;
         }
 
         if (_collectionEnable == false) {
-          Fluttertoast.showToast(
-              msg: "您的操作太频繁了，稍等！",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.CENTER);
+          showToast("您的操作太频繁了，稍等！", position: ToastPosition.center);
           return;
         }
 
@@ -291,16 +286,10 @@ class _PoemDetailState extends State<PoemDetail>
                     tableName: tableCollection,
                     poemRecom: _detailModel.gushiwen)
                 .then((dynamic) {
-              Fluttertoast.showToast(
-                  msg: "收藏成功",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.CENTER);
+              showToast("收藏成功", position: ToastPosition.center);
               setState(() {});
             }).catchError((error) {
-              Fluttertoast.showToast(
-                  msg: "收藏失败",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.CENTER);
+              showToast("收藏失败", position: ToastPosition.center);
             }).whenComplete(() {
               _collectionEnable = true;
             });
@@ -312,16 +301,10 @@ class _PoemDetailState extends State<PoemDetail>
                 .delete(
                     tableName: tableCollection, id: _detailModel.gushiwen.idnew)
                 .then((dynamic) {
-              Fluttertoast.showToast(
-                  msg: "取消收藏成功",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.CENTER);
+              showToast("取消收藏成功", position: ToastPosition.center);
               setState(() {});
             }).catchError((error) {
-              Fluttertoast.showToast(
-                  msg: "取消收藏失败",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.CENTER);
+              showToast("取消收藏失败", position: ToastPosition.center);
             }).whenComplete(() {
               _collectionEnable = true;
             });

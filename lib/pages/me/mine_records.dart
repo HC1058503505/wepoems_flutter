@@ -3,9 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:wepoems_flutter/models/poem_recommend.dart';
 import 'package:wepoems_flutter/pages/recommand/poem_cell.dart';
 import 'package:wepoems_flutter/pages/detail/poem_detail.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:io';
 import 'package:wepoems_flutter/pages/taglist/poems_list_cell.dart';
+import 'package:oktoast/oktoast.dart';
 
 class MineRecords extends StatefulWidget {
   @override
@@ -63,7 +63,8 @@ class _MineRecordsState extends State<MineRecords> {
     // TODO: implement dispose
     super.dispose();
     _scrollController.dispose();
-    Fluttertoast.cancel();
+    dismissAllToast();
+    PoemRecommendProvider.singleton.close();
   }
 
   @override
@@ -87,23 +88,37 @@ class _MineRecordsState extends State<MineRecords> {
     );
   }
 
-  void sureClear() {
+  void sureClear() async{
     PoemRecommendProvider provider = PoemRecommendProvider.singleton;
+    await provider.open(DatabasePath);
+
     provider.deleteAll(tableName: tableRecords).then((dynamic) {
       Navigator.of(context).pop();
-      Fluttertoast.showToast(
-          msg: "清除成功",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER);
-
+      showToast("清除成功", position: ToastPosition.center);
       setState(() {
         _records.clear();
       });
     }).catchError((error) {
-      Fluttertoast.showToast(
-          msg: "清除失败",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER);
+      showToast("清除失败", position: ToastPosition.center);
+    }).whenComplete(() {});
+  }
+
+  void sliderDelete(int index) async {
+    PoemRecommendProvider provider =
+        PoemRecommendProvider.singleton;
+
+    await provider.open(DatabasePath);
+    provider
+        .delete(
+        tableName: tableRecords, id: _records[index].idnew)
+        .then((dynamic) {
+      showToast("删除浏览记录成功", position: ToastPosition.center);
+
+      setState(() {
+        _records.removeAt(index);
+      });
+    }).catchError((error) {
+      showToast("删除浏览记录失败", position: ToastPosition.center);
     }).whenComplete(() {});
   }
 
@@ -203,26 +218,7 @@ class _MineRecordsState extends State<MineRecords> {
                   },
                 ),
                 onDismissed: (direction) {
-                  PoemRecommendProvider provider =
-                      PoemRecommendProvider.singleton;
-                  provider
-                      .delete(
-                          tableName: tableCollection, id: _records[index].idnew)
-                      .then((dynamic) {
-                    Fluttertoast.showToast(
-                        msg: "删除浏览记录成功",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.CENTER);
-
-                    setState(() {
-                      _records.removeAt(index);
-                    });
-                  }).catchError((error) {
-                    Fluttertoast.showToast(
-                        msg: "删除浏览记录失败",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.CENTER);
-                  }).whenComplete(() {});
+                  sliderDelete(index);
                 },
                 background: new Container(color: Colors.red),
               );

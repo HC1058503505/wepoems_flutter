@@ -52,6 +52,7 @@ class _FindPageState extends State<FindPage> {
       );
     }
     return Container(
+      padding: EdgeInsets.fromLTRB(MediaQuery.of(context).padding.left, 0, MediaQuery.of(context).padding.right, MediaQuery.of(context).padding.bottom),
       child: Column(
         children: <Widget>[
           SearchView(),

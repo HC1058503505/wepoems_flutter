@@ -6,7 +6,7 @@ import 'package:wepoems_flutter/models/strings.dart';
 import 'package:flustars/flustars.dart';
 import 'package:wepoems_flutter/models/colors.dart';
 import 'package:wepoems_flutter/pages/ad/ad_page.dart';
-import 'package:wepoems_flutter/pages/ad/ad_page.dart';
+import 'package:oktoast/oktoast.dart';
 void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {
@@ -45,25 +45,27 @@ class _MyAppState extends State<MyApp> {
     // 建表
     createCollectionTable();
 
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData.light().copyWith(
-        primaryColor: _themeColor,
-        accentColor: _themeColor,
-        indicatorColor: Colors.white,
-      ),
-      home: Stack(
-        children: <Widget>[
-          RootPage(title: '古诗文斋'),
-          Offstage(
-            offstage: _hideAd,
-            child: ADPage((finished) {
+    return OKToast(
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData.light().copyWith(
+          primaryColor: _themeColor,
+          accentColor: _themeColor,
+          indicatorColor: Colors.white,
+        ),
+        home: Stack(
+          children: <Widget>[
+            RootPage(title: '古诗文斋'),
+            Offstage(
+              offstage: _hideAd,
+              child: ADPage((finished) {
                 setState(() {
                   _hideAd = finished;
                 });
-            }),
-          )
-        ],
+              }),
+            )
+          ],
+        ),
       ),
     );
   }

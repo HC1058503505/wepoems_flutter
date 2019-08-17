@@ -5,10 +5,10 @@ import 'package:wepoems_flutter/models/poem_recommend.dart';
 import 'package:wepoems_flutter/pages/detail/poem_detail.dart';
 import 'package:wepoems_flutter/models/poem_detail_model.dart';
 import 'package:wepoems_flutter/pages/detail/poem_search_author.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:io';
 import 'package:flustars/flustars.dart';
 import 'package:dio/dio.dart';
+import 'package:oktoast/oktoast.dart';
 final String keySearchStory = "keySearchStory";
 
 class SearchController extends StatefulWidget {
@@ -79,7 +79,7 @@ class _SearchControllerState extends State<SearchController> {
       if (error is DioError) {
         var dioError = error as DioError;
         if (dioError.type == DioErrorType.CONNECT_TIMEOUT) {
-          Fluttertoast.showToast(msg: "网络超时，请检查网络！", gravity: ToastGravity.CENTER,);
+          showToast("网络超时，请检查网络！", position: ToastPosition.center);
         }
       }
     });
@@ -167,12 +167,8 @@ class _SearchControllerState extends State<SearchController> {
             },
             onSubmitted: (searchContent) {
               if (searchContent.length == 0) {
-                Fluttertoast.cancel();
-                Fluttertoast.showToast(
-                  msg: "请输入关键字",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.CENTER,
-                );
+                dismissAllToast();
+                showToast("请输入关键字", position: ToastPosition.center);
                 return;
               }
 
