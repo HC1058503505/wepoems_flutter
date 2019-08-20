@@ -15,3 +15,21 @@ class LoadingIndicator extends StatelessWidget {
     );
   }
 }
+
+
+class LoadingActivityIndicator extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return Padding(
+      padding: EdgeInsets.only(top: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          CupertinoActivityIndicator(),
+          Text("加载更多。。。", textAlign: TextAlign.center,)
+        ],
+      ),
+    );
+  }
+}

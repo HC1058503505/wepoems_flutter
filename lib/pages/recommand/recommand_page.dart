@@ -6,7 +6,6 @@ import 'package:wepoems_flutter/tools/dio_manager.dart';
 import 'package:wepoems_flutter/pages/detail/poem_detail.dart';
 import 'package:wepoems_flutter/pages/detail/loading.dart';
 import 'package:wepoems_flutter/pages/detail/error_retry_page.dart';
-
 class RecommandPage extends StatefulWidget {
   @override
   _RecommandPageState createState() => _RecommandPageState();
@@ -78,8 +77,16 @@ class _RecommandPageState extends State<RecommandPage> {
       children: <Widget>[
         RefreshIndicator(
           child: ListView.separated(
+              padding: EdgeInsets.only(bottom: 30),
               controller: _scrollController,
               itemBuilder: (context, index) {
+                if (_recommandList.length == 0) {
+                  return null;
+                }
+
+                if (index == _recommandList.length) {
+                  return LoadingActivityIndicator();
+                }
                 return GestureDetector(
                   child: PoemCell(
                     poem: _recommandList[index],
@@ -100,7 +107,7 @@ class _RecommandPageState extends State<RecommandPage> {
                   color: Colors.transparent,
                 );
               },
-              itemCount: _recommandList.length),
+              itemCount: _recommandList.length + 1),
           onRefresh: _onRefresh,
         ),
         LoadingIndicator(isLoading: _isLoading),

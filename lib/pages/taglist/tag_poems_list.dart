@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:wepoems_flutter/tools/dio_manager.dart';
 import 'package:wepoems_flutter/models/poem_recommend.dart';
 import 'package:wepoems_flutter/pages/taglist/poems_list_cell.dart';
 import 'package:wepoems_flutter/pages/detail/loading.dart';
 import 'package:wepoems_flutter/pages/detail/error_retry_page.dart';
-
+import 'package:wepoems_flutter/pages/detail/loading.dart';
 enum TagType { Normal, Author, Dynasty, Collections, Category }
 
 class PoemsTagList extends StatefulWidget {
@@ -113,28 +114,38 @@ class _PoemsTagListState extends State<PoemsTagList> {
         centerTitle: true,
         title: Text(_navTitle),
       ),
-      body: Stack(
-        children: <Widget>[
-          RefreshIndicator(
-              child: ListView.builder(
-                  controller: _scrollController,
-                  itemBuilder: (context, index) {
-                    return PoemsListCell(
-                      poem: _poemList[index],
-                      padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                      pushContext: context,
-                    );
-                  },
-                  itemCount: _poemList.length),
-              onRefresh: _refresh),
-          LoadingIndicator(isLoading: _isLoading),
-          RetryPage(
-            offstage: _isLoading || _poemList.length > 0,
-            onTap: () {
-              _getMoreTagList();
-            },
-          )
-        ],
+      body: Container(
+        color: Colors.white,
+        child: Stack(
+          children: <Widget>[
+            RefreshIndicator(
+                child: ListView.builder(
+                    padding: EdgeInsets.fromLTRB(MediaQuery.of(context).padding.left, 0, MediaQuery.of(context).padding.right, 40),
+                    controller: _scrollController,
+                    itemBuilder: (context, index) {
+                      if (_poemList.length == 0) {
+                        return null;
+                      }
+                      if (index == _poemList.length) {
+                        return LoadingActivityIndicator();
+                      }
+                      return PoemsListCell(
+                        poem: _poemList[index],
+                        padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                        pushContext: context,
+                      );
+                    },
+                    itemCount: _poemList.length + 1),
+                onRefresh: _refresh),
+            LoadingIndicator(isLoading: _isLoading),
+            RetryPage(
+              offstage: _isLoading || _poemList.length > 0,
+              onTap: () {
+                _getMoreTagList();
+              },
+            )
+          ],
+        ),
       ),
     );
   }

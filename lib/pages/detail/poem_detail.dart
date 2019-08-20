@@ -16,6 +16,7 @@ import 'dart:core';
 import 'dart:io';
 import 'package:wepoems_flutter/pages/detail/loading.dart';
 import 'package:wepoems_flutter/pages/detail/error_retry_page.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class PoemDetail extends StatefulWidget {
   PoemDetail({this.poemRecom});
@@ -26,7 +27,7 @@ class PoemDetail extends StatefulWidget {
 }
 
 class _PoemDetailState extends State<PoemDetail>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   PoemDetailModel _detailModel;
   List<Map<String, String>> _tabs = <Map<String, String>>[
     {"title": "译注"},
@@ -43,7 +44,9 @@ class _PoemDetailState extends State<PoemDetail>
   List<PoemRecommend> _poemRecoms = <PoemRecommend>[];
   List<PoemAnalyze> _analyzes = <PoemAnalyze>[];
   PoemAuthor _authorInfo = PoemAuthor();
-
+  AudioPlayer _audioPlayer;
+  AnimationController _animationController;
+  AnimationStatusListener _animationStatusListener;
   @override
   void initState() {
     // TODO: implement initState
@@ -56,6 +59,25 @@ class _PoemDetailState extends State<PoemDetail>
     });
 
     selectedCollection();
+    _animationController = AnimationController(duration: Duration(seconds: 5),vsync: this);
+
+    _animationStatusListener = (animationSatus){
+      if (animationSatus == AnimationStatus.completed) {
+//        //动画从 controller.forward() 正向执行 结束时会回调此方法
+//        print("status is completed");
+      } else if (animationSatus == AnimationStatus.dismissed) {
+        //动画从 controller.reverse() 反向执行 结束时会回调此方法
+        print("status is dismissed");
+      } else if (animationSatus == AnimationStatus.forward) {
+        print("status is forward");
+        //执行 controller.forward() 会回调此状态
+      } else if (animationSatus == AnimationStatus.reverse) {
+        //执行 controller.reverse() 会回调此状态
+        print("status is reverse");
+      }
+    };
+
+    _animationController.addStatusListener(_animationStatusListener);
   }
 
   void selectedCollection() async {
@@ -93,8 +115,16 @@ class _PoemDetailState extends State<PoemDetail>
   @override
   void dispose() {
     // TODO: implement dispose
-    super.dispose();
     _tabController.dispose();
+    _animationController.reset();
+    _animationController.removeStatusListener(_animationStatusListener);
+    _animationController.dispose();
+    if (_audioPlayer != null) {
+      _audioPlayer.release();
+      _audioPlayer.dispose();
+    }
+
+    super.dispose();
     DioManager.singleton.cancle();
     dismissAllToast();
   }
@@ -128,16 +158,29 @@ class _PoemDetailState extends State<PoemDetail>
         : "api/shiwen/shiwenv.aspx";
 
     DioManager.singleton.post(path: path, data: postData).then((response) {
-      setState(() {
-        _detailModel = PoemDetailModel.parseJSON(response);
-        if (widget.poemRecom.from == "collection") {
-          _detailModel.gushiwen.from = "collection";
-          _detailModel.gushiwen.isCollection = true;
-        }
-      });
+      _detailModel = PoemDetailModel.parseJSON(response);
+      if (widget.poemRecom.from == "collection") {
+        _detailModel.gushiwen.from = "collection";
+        _detailModel.gushiwen.isCollection = true;
+      }
+      if (_detailModel != null &&
+          _detailModel.gushiwen.langsongAuthorPY.length > 0) {
+        _audioPlayer = AudioPlayer();
+        _audioPlayer.onPlayerStateChanged.listen((AudioPlayerState status){
+          if (status == AudioPlayerState.COMPLETED) {
+            _animationController.reset();
+          }
+        });
+        
+        _audioPlayer.onPlayerError.listen((String event) {
+          _animationController.reset();
+          showToast("音频加载失败！");
+        });
 
+      }
       _getAuthorMsg();
       _scanRecord();
+      setState(() {});
     }).catchError((error) {
       if (error is DioError) {
         DioError dioError = error as DioError;
@@ -206,12 +249,16 @@ class _PoemDetailState extends State<PoemDetail>
                   onPressed: () {
                     Navigator.of(context).pop();
                   }),
-              actions: <Widget>[collectionButtonAction()],
+              actions: <Widget>[radioButton(), collectionButtonAction()],
             ),
             body: Offstage(
               offstage: _detailModel == null,
               child: Container(
-                padding: EdgeInsets.fromLTRB(MediaQuery.of(context).padding.left, 0, MediaQuery.of(context).padding.right, MediaQuery.of(context).padding.bottom),
+                padding: EdgeInsets.fromLTRB(
+                    MediaQuery.of(context).padding.left,
+                    0,
+                    MediaQuery.of(context).padding.right,
+                    MediaQuery.of(context).padding.bottom),
                 color: Colors.white,
                 child: CustomScrollView(
                   slivers: <Widget>[
@@ -311,6 +358,36 @@ class _PoemDetailState extends State<PoemDetail>
           }
         });
       },
+    );
+  }
+
+  RotationTransition radioButton() {
+    return RotationTransition(
+      alignment: Alignment.center,
+      turns: _animationController,
+      child: IconButton(
+          icon: Icon(
+            Icons.headset,
+            color: (_detailModel == null ||
+                _detailModel.gushiwen.langsongAuthorPY.length == 0)
+                ? Colors.transparent
+                : Colors.white,
+          ),
+          onPressed: () {
+            if (_audioPlayer.state == AudioPlayerState.COMPLETED || _audioPlayer.state == null || _audioPlayer.state == AudioPlayerState.STOPPED) {
+              _animationController.repeat();
+              String pyName = _detailModel.gushiwen.langsongAuthorPY;
+              String pyid = _detailModel.gushiwen.idnew;
+              _audioPlayer
+                  .play("https://song.gushiwen.org/song/$pyName/$pyid.mp3");
+            } else if (_audioPlayer.state == AudioPlayerState.PAUSED) {
+              _animationController.repeat();
+              _audioPlayer.resume();
+            } else if (_audioPlayer.state == AudioPlayerState.PLAYING) {
+              _animationController.reset();
+              _audioPlayer.pause();
+            }
+          }),
     );
   }
 

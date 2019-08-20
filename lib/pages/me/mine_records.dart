@@ -6,7 +6,7 @@ import 'package:wepoems_flutter/pages/detail/poem_detail.dart';
 import 'dart:io';
 import 'package:wepoems_flutter/pages/taglist/poems_list_cell.dart';
 import 'package:oktoast/oktoast.dart';
-
+import 'package:wepoems_flutter/pages/detail/loading.dart';
 class MineRecords extends StatefulWidget {
   @override
   _MineRecordsState createState() => _MineRecordsState();
@@ -33,7 +33,6 @@ class _MineRecordsState extends State<MineRecords> {
   void _getCollections() async {
     PoemRecommendProvider provider = PoemRecommendProvider.singleton;
     await provider.open(DatabasePath);
-//    await provider.getRecords();
     provider
         .getPoemRecomsPaging(tableName: tableRecords, limit: 10, page: _page)
         .then((collectionList) {
@@ -198,8 +197,17 @@ class _MineRecordsState extends State<MineRecords> {
       color: Colors.white,
       child: RefreshIndicator(
           child: ListView.builder(
+            padding: EdgeInsets.fromLTRB(MediaQuery.of(context).padding.left, 0, MediaQuery.of(context).padding.right, MediaQuery.of(context).padding.bottom),
             controller: _scrollController,
             itemBuilder: (context, index) {
+              if (_records.length == 0) {
+                return null;
+              }
+
+              if (index == _records.length) {
+                return LoadingActivityIndicator();
+              }
+
               return Dismissible(
                 direction: DismissDirection.endToStart,
                 key: Key(_records[index].idnew),
@@ -223,7 +231,7 @@ class _MineRecordsState extends State<MineRecords> {
                 background: new Container(color: Colors.red),
               );
             },
-            itemCount: _records == null ? 0 : _records.length,
+            itemCount:  _records.length + 1,
           ),
           onRefresh: _onRefresh),
     );
