@@ -126,7 +126,10 @@ class _PoemDetailState extends State<PoemDetail> with TickerProviderStateMixin {
     _animationController.dispose();
 
     if (_audioPlayer != null) {
-      _audioPlayer.release();
+      if(_audioPlayer.state == AudioPlayerState.PLAYING){
+        _audioPlayer.release();
+      }
+
       _audioPlayer.dispose();
     }
 
