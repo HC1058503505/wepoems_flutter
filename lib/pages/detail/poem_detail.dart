@@ -17,6 +17,8 @@ import 'dart:io';
 import 'package:wepoems_flutter/pages/detail/loading.dart';
 import 'package:wepoems_flutter/pages/detail/error_retry_page.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flustars/flustars.dart';
+import 'package:wepoems_flutter/tools/bus_event.dart';
 
 class PoemDetail extends StatefulWidget {
   PoemDetail({this.poemRecom});
@@ -26,8 +28,7 @@ class PoemDetail extends StatefulWidget {
   _PoemDetailState createState() => _PoemDetailState();
 }
 
-class _PoemDetailState extends State<PoemDetail>
-    with TickerProviderStateMixin {
+class _PoemDetailState extends State<PoemDetail> with TickerProviderStateMixin {
   PoemDetailModel _detailModel;
   List<Map<String, String>> _tabs = <Map<String, String>>[
     {"title": "译注"},
@@ -59,9 +60,10 @@ class _PoemDetailState extends State<PoemDetail>
     });
 
     selectedCollection();
-    _animationController = AnimationController(duration: Duration(seconds: 5),vsync: this);
+    _animationController =
+        AnimationController(duration: Duration(seconds: 5), vsync: this);
 
-    _animationStatusListener = (animationSatus){
+    _animationStatusListener = (animationSatus) {
       if (animationSatus == AnimationStatus.completed) {
 //        //动画从 controller.forward() 正向执行 结束时会回调此方法
 //        print("status is completed");
@@ -105,6 +107,9 @@ class _PoemDetailState extends State<PoemDetail>
           } else {
             widget.poemRecom.isCollection = false;
           }
+          _detailModel.gushiwen.isCollection = widget.poemRecom.isCollection;
+          _detailModel.gushiwen.from = widget.poemRecom.from;
+          setState(() {});
         })
         .catchError((error) {})
         .whenComplete(() {
@@ -119,6 +124,7 @@ class _PoemDetailState extends State<PoemDetail>
     _animationController.reset();
     _animationController.removeStatusListener(_animationStatusListener);
     _animationController.dispose();
+
     if (_audioPlayer != null) {
       _audioPlayer.release();
       _audioPlayer.dispose();
@@ -159,25 +165,9 @@ class _PoemDetailState extends State<PoemDetail>
 
     DioManager.singleton.post(path: path, data: postData).then((response) {
       _detailModel = PoemDetailModel.parseJSON(response);
-      if (widget.poemRecom.from == "collection") {
-        _detailModel.gushiwen.from = "collection";
-        _detailModel.gushiwen.isCollection = true;
-      }
-      if (_detailModel != null &&
-          _detailModel.gushiwen.langsongAuthorPY.length > 0) {
-        _audioPlayer = AudioPlayer();
-        _audioPlayer.onPlayerStateChanged.listen((AudioPlayerState status){
-          if (status == AudioPlayerState.COMPLETED) {
-            _animationController.reset();
-          }
-        });
-        
-        _audioPlayer.onPlayerError.listen((String event) {
-          _animationController.reset();
-          showToast("音频加载失败！");
-        });
+      _detailModel.gushiwen.from = widget.poemRecom.from;
+      _detailModel.gushiwen.isCollection = widget.poemRecom.isCollection;
 
-      }
       _getAuthorMsg();
       _scanRecord();
       setState(() {});
@@ -305,8 +295,7 @@ class _PoemDetailState extends State<PoemDetail>
   IconButton collectionButtonAction() {
     return IconButton(
       icon: Icon(
-          widget.poemRecom.isCollection ||
-                  (_detailModel != null && _detailModel.gushiwen.isCollection)
+          (_detailModel != null && _detailModel.gushiwen.isCollection)
               ? Icons.star
               : Icons.star_border,
           color: Colors.white),
@@ -324,10 +313,11 @@ class _PoemDetailState extends State<PoemDetail>
 
         PoemRecommendProvider provider = PoemRecommendProvider.singleton;
         provider.open(DatabasePath).then((dyanmic) {
-          if (!_detailModel.gushiwen.isCollection) {
-            _collectionEnable = false;
-            _detailModel.gushiwen.isCollection =
-                !_detailModel.gushiwen.isCollection;
+          _collectionEnable = false;
+          _detailModel.gushiwen.isCollection =
+              !_detailModel.gushiwen.isCollection;
+          widget.poemRecom.isCollection = !widget.poemRecom.isCollection;
+          if (_detailModel.gushiwen.isCollection) {
             provider
                 .insert(
                     tableName: tableCollection,
@@ -339,26 +329,40 @@ class _PoemDetailState extends State<PoemDetail>
               showToast("收藏失败", position: ToastPosition.center);
             }).whenComplete(() {
               _collectionEnable = true;
+              if (_detailModel.gushiwen.from == "collection" &&
+                  _detailModel.gushiwen.isCollection) {
+                bus.emit("kCollectionAdd", widget.poemRecom);
+              }
             });
           } else {
-            _collectionEnable = false;
-            _detailModel.gushiwen.isCollection =
-                !_detailModel.gushiwen.isCollection;
-            provider
-                .delete(
-                    tableName: tableCollection, id: _detailModel.gushiwen.idnew)
-                .then((dynamic) {
+            Future.wait([
+              deleteCollectionSource(provider),
+              updateRecordSource(provider)
+            ]).then((dynamic) {
               showToast("取消收藏成功", position: ToastPosition.center);
               setState(() {});
             }).catchError((error) {
               showToast("取消收藏失败", position: ToastPosition.center);
             }).whenComplete(() {
               _collectionEnable = true;
+              if (_detailModel.gushiwen.from == "collection" &&
+                  _detailModel.gushiwen.isCollection == false) {
+                bus.emit("kCollectionCancle", _detailModel.gushiwen.idnew);
+              }
             });
           }
         });
       },
     );
+  }
+
+  Future deleteCollectionSource(PoemRecommendProvider provider) async {
+    provider.delete(
+        tableName: tableCollection, id: _detailModel.gushiwen.idnew);
+  }
+
+  Future updateRecordSource(PoemRecommendProvider provider) async {
+    provider.update(tableName: tableRecords, poemRecom: widget.poemRecom);
   }
 
   RotationTransition radioButton() {
@@ -369,22 +373,37 @@ class _PoemDetailState extends State<PoemDetail>
           icon: Icon(
             Icons.headset,
             color: (_detailModel == null ||
-                _detailModel.gushiwen.langsongAuthorPY.length == 0)
+                    _detailModel.gushiwen.langsongAuthorPY.length == 0)
                 ? Colors.transparent
                 : Colors.white,
           ),
           onPressed: () {
-            if (_audioPlayer.state == AudioPlayerState.COMPLETED || _audioPlayer.state == null || _audioPlayer.state == AudioPlayerState.STOPPED) {
-              _animationController.repeat();
+            if (_audioPlayer == null) {
+              _audioPlayer = AudioPlayer(mode: PlayerMode.LOW_LATENCY);
+              _audioPlayer.onPlayerStateChanged
+                  .listen((AudioPlayerState status) {
+                status == AudioPlayerState.PLAYING
+                    ? _animationController.repeat()
+                    : _animationController.reset();
+              });
+
+              _audioPlayer.onPlayerError.listen((String event) {
+                _audioPlayer.release();
+                _audioPlayer.dispose();
+                _audioPlayer = null;
+                showToast("音频加载失败!");
+              });
+            }
+
+            if (_audioPlayer.state == AudioPlayerState.COMPLETED ||
+                _audioPlayer.state == null) {
               String pyName = _detailModel.gushiwen.langsongAuthorPY;
               String pyid = _detailModel.gushiwen.idnew;
               _audioPlayer
                   .play("https://song.gushiwen.org/song/$pyName/$pyid.mp3");
             } else if (_audioPlayer.state == AudioPlayerState.PAUSED) {
-              _animationController.repeat();
               _audioPlayer.resume();
             } else if (_audioPlayer.state == AudioPlayerState.PLAYING) {
-              _animationController.reset();
               _audioPlayer.pause();
             }
           }),

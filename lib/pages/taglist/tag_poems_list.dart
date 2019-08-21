@@ -5,7 +5,7 @@ import 'package:wepoems_flutter/models/poem_recommend.dart';
 import 'package:wepoems_flutter/pages/taglist/poems_list_cell.dart';
 import 'package:wepoems_flutter/pages/detail/loading.dart';
 import 'package:wepoems_flutter/pages/detail/error_retry_page.dart';
-import 'package:wepoems_flutter/pages/detail/loading.dart';
+
 enum TagType { Normal, Author, Dynasty, Collections, Category }
 
 class PoemsTagList extends StatefulWidget {
@@ -23,6 +23,7 @@ class _PoemsTagListState extends State<PoemsTagList> {
   ScrollController _scrollController = ScrollController();
   List<PoemRecommend> _poemList = <PoemRecommend>[];
   int _sumPage = 1;
+  int _sumCount = 0;
   bool _isLoading = false;
   @override
   void initState() {
@@ -79,6 +80,7 @@ class _PoemsTagListState extends State<PoemsTagList> {
         .post(path: "api/shiwen/Default.aspx", data: _postData)
         .then((response) {
           _sumPage = response["sumPage"] as int;
+          _sumCount = response["sumCount"] as int;
           List<dynamic> gushiwens = response["gushiwens"] as List<dynamic>;
           List<PoemRecommend> poems = gushiwens.map<PoemRecommend>((gushiwen) {
             return PoemRecommend.parseJSON(gushiwen);
@@ -120,15 +122,21 @@ class _PoemsTagListState extends State<PoemsTagList> {
           children: <Widget>[
             RefreshIndicator(
                 child: ListView.builder(
-                    padding: EdgeInsets.fromLTRB(MediaQuery.of(context).padding.left, 0, MediaQuery.of(context).padding.right, 40),
+                    padding: EdgeInsets.fromLTRB(
+                        MediaQuery.of(context).padding.left,
+                        0,
+                        MediaQuery.of(context).padding.right,
+                        MediaQuery.of(context).padding.bottom),
                     controller: _scrollController,
                     itemBuilder: (context, index) {
-                      if (_poemList.length == 0) {
+                      if (_poemList.length == 0 || index == _sumCount) {
                         return null;
                       }
+
                       if (index == _poemList.length) {
                         return LoadingActivityIndicator();
                       }
+
                       return PoemsListCell(
                         poem: _poemList[index],
                         padding: EdgeInsets.fromLTRB(10, 0, 10, 0),

@@ -6,6 +6,7 @@ import 'package:wepoems_flutter/pages/detail/poem_detail.dart';
 import 'dart:io';
 import 'package:wepoems_flutter/pages/taglist/poems_list_cell.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:wepoems_flutter/tools/bus_event.dart';
 
 enum MineCollectionsType { colloections, records }
 
@@ -37,6 +38,29 @@ class _MineCollectionsState extends State<MineCollections> {
       }
     });
     _getCollections();
+
+    bus.add("kCollectionCancle", (poemId) {
+      if (!mounted || _collections == null || poemId == null) {
+        return;
+      }
+
+      PoemRecommend poemRecommend = _collections.firstWhere((poemElement) {
+        return poemId == poemElement.idnew;
+      }, orElse: () {});
+      if (poemRecommend == null) {
+        return;
+      }
+      _collections.remove(poemRecommend);
+      setState(() {});
+    });
+
+    bus.add("kCollectionAdd", (poemCom) {
+      if (!mounted || poemCom == null || !(poemCom is PoemRecommend)) {
+        return;
+      }
+      _collections.add(poemCom);
+      setState(() {});
+    });
   }
 
   void _getCollections() async {
@@ -77,6 +101,9 @@ class _MineCollectionsState extends State<MineCollections> {
     _scrollController.dispose();
     dismissAllToast();
     PoemRecommendProvider.singleton.close();
+
+    bus.delete("kCollectionAdd");
+    bus.delete("kCollectionCancle");
   }
 
   @override
@@ -100,7 +127,7 @@ class _MineCollectionsState extends State<MineCollections> {
     );
   }
 
-  void sureClear() async{
+  void sureClear() async {
     PoemRecommendProvider provider = PoemRecommendProvider.singleton;
     await provider.open(DatabasePath);
     provider.deleteAll(tableName: tableCollection).then((dynamic) {
@@ -116,15 +143,12 @@ class _MineCollectionsState extends State<MineCollections> {
   }
 
   void sliderDelete(int index) async {
-    PoemRecommendProvider provider =
-        PoemRecommendProvider.singleton;
+    PoemRecommendProvider provider = PoemRecommendProvider.singleton;
 
     await provider.open(DatabasePath);
 
     provider
-        .delete(
-        tableName: tableCollection,
-        id: _collections[index].idnew)
+        .delete(tableName: tableCollection, id: _collections[index].idnew)
         .then((dynamic) {
       showToast("删除$_tipStr成功", position: ToastPosition.center);
       setState(() {

@@ -6,7 +6,7 @@ import 'package:wepoems_flutter/pages/detail/poem_detail.dart';
 import 'dart:io';
 import 'package:wepoems_flutter/pages/taglist/poems_list_cell.dart';
 import 'package:oktoast/oktoast.dart';
-import 'package:wepoems_flutter/pages/detail/loading.dart';
+
 class MineRecords extends StatefulWidget {
   @override
   _MineRecordsState createState() => _MineRecordsState();
@@ -87,7 +87,7 @@ class _MineRecordsState extends State<MineRecords> {
     );
   }
 
-  void sureClear() async{
+  void sureClear() async {
     PoemRecommendProvider provider = PoemRecommendProvider.singleton;
     await provider.open(DatabasePath);
 
@@ -103,13 +103,11 @@ class _MineRecordsState extends State<MineRecords> {
   }
 
   void sliderDelete(int index) async {
-    PoemRecommendProvider provider =
-        PoemRecommendProvider.singleton;
+    PoemRecommendProvider provider = PoemRecommendProvider.singleton;
 
     await provider.open(DatabasePath);
     provider
-        .delete(
-        tableName: tableRecords, id: _records[index].idnew)
+        .delete(tableName: tableRecords, id: _records[index].idnew)
         .then((dynamic) {
       showToast("删除浏览记录成功", position: ToastPosition.center);
 
@@ -197,17 +195,13 @@ class _MineRecordsState extends State<MineRecords> {
       color: Colors.white,
       child: RefreshIndicator(
           child: ListView.builder(
-            padding: EdgeInsets.fromLTRB(MediaQuery.of(context).padding.left, 0, MediaQuery.of(context).padding.right, MediaQuery.of(context).padding.bottom),
+            padding: EdgeInsets.fromLTRB(
+                MediaQuery.of(context).padding.left,
+                0,
+                MediaQuery.of(context).padding.right,
+                MediaQuery.of(context).padding.bottom),
             controller: _scrollController,
             itemBuilder: (context, index) {
-              if (_records.length == 0) {
-                return null;
-              }
-
-              if (index == _records.length) {
-                return LoadingActivityIndicator();
-              }
-
               return Dismissible(
                 direction: DismissDirection.endToStart,
                 key: Key(_records[index].idnew),
@@ -231,7 +225,7 @@ class _MineRecordsState extends State<MineRecords> {
                 background: new Container(color: Colors.red),
               );
             },
-            itemCount:  _records.length + 1,
+            itemCount: _records.length,
           ),
           onRefresh: _onRefresh),
     );
