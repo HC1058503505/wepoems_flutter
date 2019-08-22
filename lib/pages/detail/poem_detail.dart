@@ -17,8 +17,11 @@ import 'dart:io';
 import 'package:wepoems_flutter/pages/detail/loading.dart';
 import 'package:wepoems_flutter/pages/detail/error_retry_page.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flustars/flustars.dart';
 import 'package:wepoems_flutter/tools/bus_event.dart';
+import 'package:share/share.dart';
+import 'dart:typed_data';
+import 'package:path_provider/path_provider.dart';
+import 'package:wepoems_flutter/pages/detail/poem_show_snap.dart';
 
 class PoemDetail extends StatefulWidget {
   PoemDetail({this.poemRecom});
@@ -48,6 +51,9 @@ class _PoemDetailState extends State<PoemDetail> with TickerProviderStateMixin {
   AudioPlayer _audioPlayer;
   AnimationController _animationController;
   AnimationStatusListener _animationStatusListener;
+  GlobalKey captureImgKey = GlobalKey();
+  bool _showSnapImg = false;
+  String _snapImgPath = "";
   @override
   void initState() {
     // TODO: implement initState
@@ -126,7 +132,7 @@ class _PoemDetailState extends State<PoemDetail> with TickerProviderStateMixin {
     _animationController.dispose();
 
     if (_audioPlayer != null) {
-      if(_audioPlayer.state == AudioPlayerState.PLAYING){
+      if (_audioPlayer.state == AudioPlayerState.PLAYING) {
         _audioPlayer.release();
       }
 
@@ -242,7 +248,12 @@ class _PoemDetailState extends State<PoemDetail> with TickerProviderStateMixin {
                   onPressed: () {
                     Navigator.of(context).pop();
                   }),
-              actions: <Widget>[radioButton(), collectionButtonAction()],
+              actions: <Widget>[
+                radioButton(),
+                collectionButtonAction(),
+                shareButtonAction(),
+                snaptButtonAction()
+              ],
             ),
             body: Offstage(
               offstage: _detailModel == null,
@@ -293,6 +304,76 @@ class _PoemDetailState extends State<PoemDetail> with TickerProviderStateMixin {
         ),
       ],
     );
+  }
+
+  IconButton snaptButtonAction() {
+    return IconButton(
+        icon: Icon(Icons.content_cut),
+        onPressed: () {
+          _capturePng().then((_) {
+            if (!_showSnapImg) {
+              return;
+            }
+
+            Navigator.of(context).push(
+              PageRouteBuilder(
+                pageBuilder: (BuildContext context, Animation animation,
+                    Animation secondaryAnimation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: ShowSnapImg(
+                      snapImgPath: _snapImgPath,
+                    ),
+                  );
+                },
+              ),
+            );
+          }).catchError((error) {});
+        });
+  }
+
+  Future _capturePng() async {
+    if (_detailModel == null) {
+      return;
+    }
+    try {
+      RenderRepaintBoundary boundary =
+          captureImgKey.currentContext.findRenderObject();
+      var image = await boundary.toImage(pixelRatio: 3.0);
+      ByteData byteData = await image.toByteData(format: ImageByteFormat.png);
+      Uint8List pngBytes = byteData.buffer.asUint8List();
+      Directory tempDirectory = await getTemporaryDirectory();
+      String imgPath =
+          tempDirectory.path + '/' + _detailModel.gushiwen.idnew + ".png";
+      _snapImgPath = imgPath;
+      File imgFile = File(imgPath);
+      bool fileExist = await imgFile.exists();
+      if (!fileExist) {
+        imgFile.writeAsBytesSync(pngBytes);
+      }
+
+      setState(() {
+        _showSnapImg = true;
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  IconButton shareButtonAction() {
+    return IconButton(
+        icon: Icon(
+          Icons.share,
+          color: Colors.white,
+        ),
+        onPressed: () {
+          String poemTitle = _detailModel.gushiwen.nameStr;
+          String poemtDynastyAndAuthor = _detailModel.gushiwen.chaodai +
+              "/" +
+              _detailModel.gushiwen.author;
+          String poemCont = _detailModel.gushiwen.cont;
+          Share.share("poemConten");
+        });
   }
 
   IconButton collectionButtonAction() {
@@ -443,13 +524,29 @@ class _PoemDetailState extends State<PoemDetail> with TickerProviderStateMixin {
     return Container(
       color: Colors.white,
       width: MediaQuery.of(context).size.width,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: <Widget>[
-          PoemCell(poem: source),
-          PoemTagPage(
-            tagStr: source.tag,
-            pushContext: context,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              RepaintBoundary(
+                key: captureImgKey,
+                child: PoemCell(poem: source),
+              ),
+              PoemTagPage(
+                tagStr: source.tag,
+                pushContext: context,
+              )
+            ],
+          ),
+          Offstage(
+            offstage: _snapImgPath.length > 0,
+            child: Hero(
+              tag: "hero",
+              child: Image.file(
+                File(_snapImgPath),
+              ),
+            ),
           )
         ],
       ),

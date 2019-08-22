@@ -30,7 +30,7 @@ class _PoemsTagListState extends State<PoemsTagList> {
     // TODO: implement initState
     super.initState();
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
+      if (_scrollController.position.pixels + 20 >=
           _scrollController.position.maxScrollExtent) {
         _page++;
         _getMoreTagList();
@@ -126,7 +126,7 @@ class _PoemsTagListState extends State<PoemsTagList> {
                         MediaQuery.of(context).padding.left,
                         0,
                         MediaQuery.of(context).padding.right,
-                        MediaQuery.of(context).padding.bottom),
+                        MediaQuery.of(context).padding.bottom + 20),
                     controller: _scrollController,
                     itemBuilder: (context, index) {
                       if (_poemList.length == 0 || index == _sumCount) {

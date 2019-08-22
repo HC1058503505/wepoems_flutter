@@ -19,8 +19,12 @@ class _MePageState extends State<MePage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(MediaQuery.of(context).padding.left, 0, MediaQuery.of(context).padding.right, MediaQuery.of(context).padding.bottom),
-      color: Colors.black.withAlpha(5),
+      padding: EdgeInsets.fromLTRB(
+          MediaQuery.of(context).padding.left,
+          0,
+          MediaQuery.of(context).padding.right,
+          MediaQuery.of(context).padding.bottom),
+      color: Colors.white,
       child: ListView.separated(
         padding: EdgeInsets.only(top: 20),
         itemBuilder: (context, index) {
@@ -30,7 +34,9 @@ class _MePageState extends State<MePage> {
                 case 0:
                   Navigator.of(context)
                       .push(CupertinoPageRoute(builder: (context) {
-                    return MineCollections(collectionsType: MineCollectionsType.colloections,);
+                    return MineCollections(
+                      collectionsType: MineCollectionsType.colloections,
+                    );
                   }));
                   break;
                 case 1:
@@ -69,6 +75,7 @@ class _MePageState extends State<MePage> {
         itemCount: _items.length,
         separatorBuilder: (context, index) {
           return Container(
+            color: Colors.grey.withAlpha(30),
             child: Divider(
               color: Colors.transparent,
               height: _items[index].hasDivider ? 16 : 1,

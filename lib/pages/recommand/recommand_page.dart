@@ -6,6 +6,7 @@ import 'package:wepoems_flutter/tools/dio_manager.dart';
 import 'package:wepoems_flutter/pages/detail/poem_detail.dart';
 import 'package:wepoems_flutter/pages/detail/loading.dart';
 import 'package:wepoems_flutter/pages/detail/error_retry_page.dart';
+
 class RecommandPage extends StatefulWidget {
   @override
   _RecommandPageState createState() => _RecommandPageState();
@@ -73,51 +74,63 @@ class _RecommandPageState extends State<RecommandPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        RefreshIndicator(
-          child: ListView.separated(
-              padding: EdgeInsets.only(bottom: 30),
-              controller: _scrollController,
-              itemBuilder: (context, index) {
-                if (_recommandList.length == 0) {
-                  return null;
-                }
+    return Container(
+      color: Colors.white,
+      child: Stack(
+        textDirection: TextDirection.rtl,
+        children: <Widget>[
+          RefreshIndicator(
+            child: ListView.separated(
+                padding: EdgeInsets.fromLTRB(
+                  MediaQuery.of(context).padding.left,
+                  0,
+                  MediaQuery.of(context).padding.right,
+                  MediaQuery.of(context).padding.bottom + 20,
+                ),
+                controller: _scrollController,
+                itemBuilder: (context, index) {
+                  if (_recommandList.length == 0) {
+                    return null;
+                  }
 
-                if (index == _recommandList.length) {
-                  return LoadingActivityIndicator();
-                }
-                return GestureDetector(
-                  child: PoemCell(
-                    poem: _recommandList[index],
-                    showStyle: PoemShowStyle.PoemShowMultipleLines,
-                  ),
-                  onTap: () {
-                    Navigator.of(context)
-                        .push(CupertinoPageRoute(builder: (context) {
-                      _recommandList[index].from = "recommend";
-                      _recommandList[index].isCollection = false;
-                      return PoemDetail(poemRecom: _recommandList[index]);
-                    }));
-                  },
-                );
-              },
-              separatorBuilder: (context, index) {
-                return Divider(
-                  color: Colors.transparent,
-                );
-              },
-              itemCount: _recommandList.length + 1),
-          onRefresh: _onRefresh,
-        ),
-        LoadingIndicator(isLoading: _isLoading),
-        RetryPage(
-          offstage: _isLoading || _recommandList.length > 0,
-          onTap: () {
-            _getPoems();
-          },
-        )
-      ],
+                  if (index == _recommandList.length) {
+                    return LoadingActivityIndicator();
+                  }
+                  return GestureDetector(
+                    child: PoemCell(
+                      poem: _recommandList[index],
+                      showStyle: PoemShowStyle.PoemShowMultipleLines,
+                    ),
+                    onTap: () {
+                      Navigator.of(context)
+                          .push(CupertinoPageRoute(builder: (context) {
+                        _recommandList[index].from = "recommend";
+                        _recommandList[index].isCollection = false;
+                        return PoemDetail(poemRecom: _recommandList[index]);
+                      }));
+                    },
+                  );
+                },
+                separatorBuilder: (context, index) {
+                  return Container(
+                    color: Colors.grey.withAlpha(12),
+                    child: Divider(
+                      color: Colors.transparent,
+                    ),
+                  );
+                },
+                itemCount: _recommandList.length + 1),
+            onRefresh: _onRefresh,
+          ),
+          LoadingIndicator(isLoading: _isLoading),
+          RetryPage(
+            offstage: _isLoading || _recommandList.length > 0,
+            onTap: () {
+              _getPoems();
+            },
+          )
+        ],
+      ),
     );
   }
 }

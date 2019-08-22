@@ -55,6 +55,7 @@ class PoemRecommend {
         .replaceAll(RegExp("<div class=\'small\'></div>"), "\n\n")
         .replaceAll(RegExp("<div.*>"), "")
         .replaceAll(RegExp("<\/div>"), "")
+        .replaceAll(RegExp("<p.*>"), "")
         .trim();
     tag = poem["tag"].toString().replaceAll(RegExp("null"), "");
     langsongAuthor =
