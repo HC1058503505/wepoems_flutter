@@ -15,7 +15,8 @@ class PoemCell extends StatelessWidget {
     return Container(
       padding: EdgeInsets.fromLTRB(15, 20, 15, 15),
       color: Colors.white,
-      child: Column(
+      child: Flex(
+        direction: Axis.vertical,
         children: <Widget>[
           Container(
             color: Colors.white,
@@ -45,8 +46,10 @@ class PoemCell extends StatelessWidget {
             padding: EdgeInsets.only(bottom: 10),
           ),
           Container(
-            padding: EdgeInsets.only(bottom: 5),
-            alignment: Alignment.center,
+            padding: EdgeInsets.only(
+              bottom: poem.cont.split("\n\n").length.toDouble(),
+            ),
+            alignment: Alignment.topCenter,
             child: Text(
               showStyle == PoemShowStyle.PoemShowSingleLine
                   ? poem.cont.split("\n\n").first
@@ -58,7 +61,7 @@ class PoemCell extends StatelessWidget {
                 decoration: TextDecoration.none,
               ),
             ),
-          )
+          ),
         ],
       ),
     );

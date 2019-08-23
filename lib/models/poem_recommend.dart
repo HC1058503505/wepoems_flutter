@@ -48,6 +48,7 @@ class PoemRecommend {
         .toString()
         .replaceAll(RegExp("null"), "")
         .replaceAll(RegExp("<(\/)?p>"), "")
+        .replaceAll(RegExp("<p.*>"), "")
         .replaceAll(RegExp("\n"), "\n\n")
         .replaceAll(RegExp("<br(.*?)>"), "\n\n")
         .replaceAll(RegExp("[\(|（].*[\)|）]"), "")
@@ -55,7 +56,6 @@ class PoemRecommend {
         .replaceAll(RegExp("<div class=\'small\'></div>"), "\n\n")
         .replaceAll(RegExp("<div.*>"), "")
         .replaceAll(RegExp("<\/div>"), "")
-        .replaceAll(RegExp("<p.*>"), "")
         .trim();
     tag = poem["tag"].toString().replaceAll(RegExp("null"), "");
     langsongAuthor =

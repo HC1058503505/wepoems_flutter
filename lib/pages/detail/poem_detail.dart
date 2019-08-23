@@ -54,6 +54,8 @@ class _PoemDetailState extends State<PoemDetail> with TickerProviderStateMixin {
   GlobalKey captureImgKey = GlobalKey();
   bool _showSnapImg = false;
   String _snapImgPath = "";
+  Image _snapImg;
+  Size _snapImgSize;
   @override
   void initState() {
     // TODO: implement initState
@@ -311,10 +313,9 @@ class _PoemDetailState extends State<PoemDetail> with TickerProviderStateMixin {
         icon: Icon(Icons.content_cut),
         onPressed: () {
           _capturePng().then((_) {
-            if (!_showSnapImg) {
+            if (_snapImg == null) {
               return;
             }
-
             Navigator.of(context).push(
               PageRouteBuilder(
                 pageBuilder: (BuildContext context, Animation animation,
@@ -322,7 +323,8 @@ class _PoemDetailState extends State<PoemDetail> with TickerProviderStateMixin {
                   return FadeTransition(
                     opacity: animation,
                     child: ShowSnapImg(
-                      snapImgPath: _snapImgPath,
+                      snapImg: _snapImg,
+                      snapImgSize: _snapImgSize,
                     ),
                   );
                 },
@@ -333,28 +335,43 @@ class _PoemDetailState extends State<PoemDetail> with TickerProviderStateMixin {
   }
 
   Future _capturePng() async {
+    if (_snapImg != null) {
+      return;
+    }
+
     if (_detailModel == null) {
       return;
     }
     try {
       RenderRepaintBoundary boundary =
           captureImgKey.currentContext.findRenderObject();
+//      boundary.toImage(pixelRatio: 3.0).then((image) {
+//        image.toByteData(format: ImageByteFormat.png).then((byteData) {
+//          Uint8List pngBytes = byteData.buffer.asUint8List();
+//          _snapImg = Image.memory(pngBytes);
+//        });
+//      });
       var image = await boundary.toImage(pixelRatio: 3.0);
       ByteData byteData = await image.toByteData(format: ImageByteFormat.png);
       Uint8List pngBytes = byteData.buffer.asUint8List();
-      Directory tempDirectory = await getTemporaryDirectory();
-      String imgPath =
-          tempDirectory.path + '/' + _detailModel.gushiwen.idnew + ".png";
-      _snapImgPath = imgPath;
-      File imgFile = File(imgPath);
-      bool fileExist = await imgFile.exists();
-      if (!fileExist) {
-        imgFile.writeAsBytesSync(pngBytes);
-      }
+      _snapImg = Image.memory(pngBytes);
+      _snapImgSize = Size(image.width.toDouble(), image.height.toDouble());
+      setState(() {});
+//      print("width:" +
+//          image.width.toString() +
+//          " " +
+//          "height:" +
+//          image.height.toString());
+//      Directory tempDirectory = await getTemporaryDirectory();
+//      String imgPath =
+//          tempDirectory.path + '/' + _detailModel.gushiwen.idnew + ".png";
+//      _snapImgPath = imgPath;
+//      File imgFile = File(imgPath);
+//      bool fileExist = await imgFile.exists();
+//      if (!fileExist) {
+//        imgFile.writeAsBytesSync(pngBytes);
+//      }
 
-      setState(() {
-        _showSnapImg = true;
-      });
     } catch (e) {
       print(e);
     }
@@ -529,9 +546,20 @@ class _PoemDetailState extends State<PoemDetail> with TickerProviderStateMixin {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              RepaintBoundary(
-                key: captureImgKey,
-                child: PoemCell(poem: source),
+              Stack(
+                children: <Widget>[
+                  RepaintBoundary(
+                    key: captureImgKey,
+                    child: PoemCell(poem: source),
+                  ),
+                  Hero(
+                    tag: "hero",
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      child: _snapImg,
+                    ),
+                  ),
+                ],
               ),
               PoemTagPage(
                 tagStr: source.tag,
@@ -539,15 +567,6 @@ class _PoemDetailState extends State<PoemDetail> with TickerProviderStateMixin {
               )
             ],
           ),
-          Offstage(
-            offstage: _snapImgPath.length > 0,
-            child: Hero(
-              tag: "hero",
-              child: Image.file(
-                File(_snapImgPath),
-              ),
-            ),
-          )
         ],
       ),
     );
