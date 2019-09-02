@@ -42,29 +42,29 @@ class _RecommandPageState extends State<RecommandPage> {
     }
     var postData = {"pwd": "", "token": "gswapi", "id": "", "page": _page};
     DioManager.singleton
-        .post(path: "api/upTimeTop11.aspx", data: postData)
+        .post(path: "api/Default.aspx", data: postData)
         .then((response) {
-          var gushiwens = response["gushiwens"] as List<dynamic>;
-          var gushiwenList = gushiwens.map((poem) {
-            return PoemRecommend.parseJSON(poem);
-          });
+      var gushiwens = response["gushiwens"] as List<dynamic>;
+      var gushiwenList = gushiwens.map((poem) {
+        return PoemRecommend.parseJSON(poem);
+      });
 
-          if (_page == 0) {
-            _recommandList.clear();
-          }
+      if (_page == 0) {
+        _recommandList.clear();
+      }
 
-          setState(() {
-            _recommandList.addAll(gushiwenList);
-          });
-        })
-        .catchError((error) {})
-        .whenComplete(() {
-          if (_isLoading == true) {
-            setState(() {
-              _isLoading = false;
-            });
-          }
+      setState(() {
+        _recommandList.addAll(gushiwenList);
+      });
+    }).catchError((error) {
+      print(error.toString());
+    }).whenComplete(() {
+      if (_isLoading == true) {
+        setState(() {
+          _isLoading = false;
         });
+      }
+    });
   }
 
   Future<void> _onRefresh() async {

@@ -7,6 +7,8 @@ import 'package:flustars/flustars.dart';
 import 'package:wepoems_flutter/models/colors.dart';
 import 'package:wepoems_flutter/pages/ad/ad_page.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:sharesdk_plugin/sharesdk_plugin.dart';
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {
@@ -28,6 +30,11 @@ class _MyAppState extends State<MyApp> {
 
     // TODO: implement initState
     super.initState();
+
+    ShareSDKRegister register = ShareSDKRegister();
+    register.setupWechat(
+        "wx42a569c9434d850c", "da5d5e62231d462b167c7aba10004db6");
+    SharesdkPlugin.regist(register);
 
     bus.add(Constant.KEY_THEME_CHANGE, (dynamic) {
       SpUtil.getInstance().then((value) {
