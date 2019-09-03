@@ -394,38 +394,37 @@ class _PoemDetailState extends State<PoemDetail> with TickerProviderStateMixin {
     String poemCont = _detailModel.gushiwen.cont;
 
     SSDKMap params = SSDKMap()
-      ..setWechat(
-          _detailModel.gushiwen.cont,
-          poemCont,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          SSDKContentTypes.text,
-          ShareSDKPlatforms.wechatSession);
-//      ..setGeneral(
-//          poemTitle,
-//          poemTitle + "(" + poemtDynastyAndAuthor + ")" + "\n" + poemCont,
-//          [
-//            "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1541565611543&di=4615c8072e155090a2b833059f19ed5b&imgtype=0&src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201501%2F06%2F20150106003502_Ajcte.jpeg"
-//          ],
-//          "http://pic28.photophoto.cn/20130818/0020033143720852_b.jpg",
-//          null,
-//          "http://pic28.photophoto.cn/20130818/0020033143720852_b.jpg",
-//          "http://pic28.photophoto.cn/20130818/0020033143720852_b.jpg",
-//          "http://i.y.qq.com/v8/playsong.html?hostuin=0&songid=&songmid=002x5Jje3eUkXT&_wv=1&source=qq&appshare=iphone&media_mid=002x5Jje3eUkXT",
-//          "http://i.y.qq.com/v8/playsong.html?hostuin=0&songid=&songmid=002x5Jje3eUkXT&_wv=1&source=qq&appshare=iphone&media_mid=002x5Jje3eUkXT",
-//          SSDKContentTypes.text);
+      ..setGeneral(
+        poemTitle,
+        poemTitle + "(" + poemtDynastyAndAuthor + ")" + "\n" + poemCont,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        SSDKContentTypes.text,
+      );
 
-    SharesdkPlugin.share(ShareSDKPlatforms.wechatSession, params,
-        (SSDKResponseState state, Map userdata, Map contentEntity,
-            SSDKError error) {
-      showToast(error.rawData.toString());
+    SharesdkPlugin.showMenu(
+        [ShareSDKPlatforms.wechatSession, ShareSDKPlatforms.sina], params,
+        (SSDKResponseState state, ShareSDKPlatform platform, Map userdata,
+            Map contentEntity, SSDKError error) {
+      switch (state) {
+        case SSDKResponseState.Success:
+          showToast("分享成功");
+          break;
+        case SSDKResponseState.Fail:
+          showToast(error.rawData.toString());
+          break;
+        case SSDKResponseState.Cancel:
+          showToast("取消分享");
+          break;
+        case SSDKResponseState.Unknown:
+          showToast("出现未知错误");
+          break;
+      }
     });
   }
 
