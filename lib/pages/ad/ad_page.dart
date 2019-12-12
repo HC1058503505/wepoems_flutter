@@ -17,6 +17,7 @@ class ADPage extends StatefulWidget {
 class _ADPageState extends State<ADPage> {
   Timer _counterTimer;
   bool _installed = false;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -50,32 +51,25 @@ class _ADPageState extends State<ADPage> {
       child: Stack(
         children: <Widget>[
           Swiper(
+            autoplay: true,
             itemCount: _installed ? 1 : 3,
             pagination: SwiperPagination(
               margin: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).padding.bottom),
+                  bottom: MediaQuery.of(context).padding.bottom == 0
+                      ? 20
+                      : MediaQuery.of(context).padding.bottom),
             ),
             itemBuilder: (context, index) {
-              Color temp = Colors.red;
-              switch (index) {
-                case 0:
-                  temp = Colors.red;
-                  break;
-                case 1:
-                  temp = Colors.cyan;
-                  break;
-                case 2:
-                  temp = Colors.blue;
-                  break;
-              }
-              ;
+              int page = index + 1;
+              String imgName =
+                  "lib/images/welcome_0" + page.toString() + ".png";
               return Container(
-                color: temp,
+                child: Image.asset(imgName),
               );
             },
           ),
           SafeArea(
-            child:Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Container(
@@ -84,18 +78,17 @@ class _ADPageState extends State<ADPage> {
                 ),
                 GestureDetector(
                   child: Padding(
-                      padding: EdgeInsets.fromLTRB(0, 0.0, 20.0, 0),
-                      child: Text(
-                        "跳过",
-                        style: TextStyle(
-                            fontSize: 15.0,
-                            color: Colors.white,
-                            backgroundColor: Colors.black12,
-                            decoration: TextDecoration.none
-                        ),
-                      ),
+                    padding: EdgeInsets.fromLTRB(0, 0.0, 20.0, 0),
+                    child: Text(
+                      "跳过",
+                      style: TextStyle(
+                          fontSize: 15.0,
+                          color: Colors.white,
+                          backgroundColor: Colors.black12,
+                          decoration: TextDecoration.none),
+                    ),
                   ),
-                  onTap: (){
+                  onTap: () {
                     widget.callback(true);
                   },
                 )

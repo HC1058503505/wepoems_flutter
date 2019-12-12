@@ -40,9 +40,9 @@ class PoemRecommend {
 
   PoemRecommend.parseJSON(Map<String, dynamic> poem) {
     idnew = poem["idnew"].toString().replaceAll(RegExp("null"), "");
-    nameStr = poem["nameStr"].toString().replaceAll(RegExp("null"), "");
-    author = poem["author"].toString().replaceAll(RegExp("null"), "");
-    chaodai = poem["chaodai"].toString().replaceAll(RegExp("null"), "");
+    nameStr = poem["nameStr"].toString().replaceAll(RegExp("null"), "").trim();
+    author = poem["author"].toString().replaceAll(RegExp("null"), "").trim();
+    chaodai = poem["chaodai"].toString().replaceAll(RegExp("null"), "").trim();
 
     cont = poem["cont"]
         .toString()
@@ -57,11 +57,13 @@ class PoemRecommend {
         .replaceAll(RegExp("<div.*>"), "")
         .replaceAll(RegExp("<\/div>"), "")
         .trim();
-    tag = poem["tag"].toString().replaceAll(RegExp("null"), "");
+    tag = poem["tag"].toString().replaceAll(RegExp("null"), "").trim();
     langsongAuthor =
-        poem["langsongAuthor"].toString().replaceAll(RegExp("null"), "");
-    langsongAuthorPY =
-        poem["langsongAuthorPY"].toString().replaceAll(RegExp("null"), "");
+        poem["langsongAuthor"].toString().replaceAll(RegExp("null"), "").trim();
+    langsongAuthorPY = poem["langsongAuthorPY"]
+        .toString()
+        .replaceAll(RegExp("null"), "")
+        .trim();
   }
 
   Map<String, dynamic> toMap() {

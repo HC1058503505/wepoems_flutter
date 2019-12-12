@@ -97,5 +97,9 @@
 		<string>twitter</string>
 		<string>twitterauth</string>
 	</array>
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-9502218624604000~3881277138</string>
+	<key>io.flutter.embedded_views_preview</key>
+    <true/>
 </dict>
 </plist>

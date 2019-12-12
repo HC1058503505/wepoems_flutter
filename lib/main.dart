@@ -8,8 +8,12 @@ import 'package:wepoems_flutter/models/colors.dart';
 import 'package:wepoems_flutter/pages/ad/ad_page.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:sharesdk_plugin/sharesdk_plugin.dart';
+import 'package:admob_flutter/admob_flutter.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  Admob.initialize("ca-app-pub-9502218624604000~3881277138");
+  runApp(MyApp());
+}
 
 class MyApp extends StatefulWidget {
   @override
@@ -63,14 +67,15 @@ class _MyAppState extends State<MyApp> {
         home: Stack(
           children: <Widget>[
             RootPage(title: '古诗文斋'),
-            Offstage(
-              offstage: _hideAd,
-              child: ADPage((finished) {
-                setState(() {
-                  _hideAd = finished;
-                });
-              }),
-            )
+// 广告页
+//            Offstage(
+//              offstage: _hideAd,
+//              child: ADPage((finished) {
+//                setState(() {
+//                  _hideAd = finished;
+//                });
+//              }),
+//            )
           ],
         ),
       ),

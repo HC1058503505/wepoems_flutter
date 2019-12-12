@@ -6,6 +6,7 @@ import 'package:wepoems_flutter/tools/dio_manager.dart';
 import 'package:wepoems_flutter/pages/detail/poem_detail.dart';
 import 'package:wepoems_flutter/pages/detail/loading.dart';
 import 'package:wepoems_flutter/pages/detail/error_retry_page.dart';
+import 'package:admob_flutter/admob_flutter.dart';
 
 class RecommandPage extends StatefulWidget {
   @override
@@ -96,6 +97,15 @@ class _RecommandPageState extends State<RecommandPage> {
                   if (index == _recommandList.length) {
                     return LoadingActivityIndicator();
                   }
+                  // if (index == 0) {
+                  //   return Padding(
+                  //     padding: EdgeInsets.only(top: 20),
+                  //     child: AdmobBanner(
+                  //       adUnitId: "ca-app-pub-9502218624604000/3080460300",
+                  //       adSize: AdmobBannerSize.BANNER,
+                  //     ),
+                  //   );
+                  // }
                   return GestureDetector(
                     child: PoemCell(
                       poem: _recommandList[index],

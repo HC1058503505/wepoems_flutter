@@ -252,8 +252,8 @@ class _PoemDetailState extends State<PoemDetail> with TickerProviderStateMixin {
               actions: <Widget>[
                 radioButton(),
                 collectionButtonAction(),
-                shareButtonAction(),
-                snaptButtonAction()
+//                shareButtonAction(),
+//                snaptButtonAction()
               ],
             ),
             body: Offstage(
@@ -396,7 +396,7 @@ class _PoemDetailState extends State<PoemDetail> with TickerProviderStateMixin {
     SSDKMap params = SSDKMap()
       ..setGeneral(
         poemTitle,
-        poemTitle + "(" + poemtDynastyAndAuthor + ")" + "\n" + poemCont,
+        poemTitle + "( " + poemtDynastyAndAuthor + ")\n\n" + poemCont,
         null,
         null,
         null,
@@ -404,11 +404,31 @@ class _PoemDetailState extends State<PoemDetail> with TickerProviderStateMixin {
         null,
         null,
         null,
-        SSDKContentTypes.text,
+        SSDKContentTypes.auto,
       );
 
-    SharesdkPlugin.showMenu(
-        [ShareSDKPlatforms.wechatSession, ShareSDKPlatforms.sina], params,
+//    SharesdkPlugin.showEditor(
+//      ShareSDKPlatforms.wechatSession,
+//      params,
+//      (SSDKResponseState state, ShareSDKPlatform platform, Map userdata,
+//          Map contentEntity, SSDKError error) {
+//        switch (state) {
+//          case SSDKResponseState.Success:
+//            showToast("分享成功");
+//            break;
+//          case SSDKResponseState.Fail:
+//            showToast(error.rawData.toString());
+//            break;
+//          case SSDKResponseState.Cancel:
+//            showToast("取消分享");
+//            break;
+//          case SSDKResponseState.Unknown:
+//            showToast("出现未知错误");
+//            break;
+//        }
+//      },
+//    );
+    SharesdkPlugin.showMenu([ShareSDKPlatforms.wechatSession], params,
         (SSDKResponseState state, ShareSDKPlatform platform, Map userdata,
             Map contentEntity, SSDKError error) {
       switch (state) {
