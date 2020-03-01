@@ -171,7 +171,7 @@ class _PoemDetailState extends State<PoemDetail> with TickerProviderStateMixin {
     var postData = {"token": "gswapi", "id": widget.poemRecom.idnew};
     String path = widget.poemRecom.from == "mingju"
         ? "api/mingju/juv2.aspx"
-        : "api/shiwen/shiwenv.aspx";
+        : "api/shiwen/shiwenv3.aspx";
 
     DioManager.singleton.post(path: path, data: postData).then((response) {
       _detailModel = PoemDetailModel.parseJSON(response);
